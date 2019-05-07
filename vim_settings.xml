@@ -1,0 +1,93 @@
+<application>
+  <component name="VimSettings">
+    <state version="4" enabled="true" />
+    <globalmarks />
+    <filemarks>
+      <file name="/Dummy.txt" timestamp="1553652462320">
+        <mark key="[" line="0" column="0" />
+      </file>
+      <file name="$USER_HOME$/Documents/Python/HelloWorld/Cf_Sg_template.json" timestamp="1557115282543">
+        <mark key="[" line="5" column="36" />
+      </file>
+      <file name="$USER_HOME$/Documents/Python/HelloWorld/HelloWorld.py" timestamp="1554059595402">
+        <mark key="[" line="0" column="0" />
+      </file>
+      <file name="/Python Console" timestamp="1557114367208">
+        <mark key="[" line="0" column="0" />
+      </file>
+      <file name="D:/downloads/Amazon AWS Certified Solutions Architect Associate Exam Dump Test PDF VCE (2018)-20190214T044510Z-001/CloudFormationFile/SampleNetworkCrossStack.template" timestamp="1557196028261">
+        <mark key="[" line="13" column="0" />
+        <mark key="]" line="13" column="0" />
+        <mark key="." line="13" column="0" />
+      </file>
+      <file name="$APPLICATION_CONFIG_DIR$/scratches/scratch.json" timestamp="1557113299067">
+        <mark key="[" line="0" column="0" />
+      </file>
+      <file name="D:/downloads/Amazon AWS Certified Solutions Architect Associate Exam Dump Test PDF VCE (2018)-20190214T044510Z-001/CloudFormationFile/MyVPC-Network.template" timestamp="1557196745344">
+        <mark key="[" line="5" column="16" />
+      </file>
+      <file name="D:/downloads/Amazon AWS Certified Solutions Architect Associate Exam Dump Test PDF VCE (2018)-20190214T044510Z-001/CloudFormationFile/aws-vpc.template" timestamp="1557195517402" />
+      <file name="D:/downloads/AWS_SysOps_associate/CF_WordPress_Blog.yml" timestamp="1557193177828">
+        <mark key="[" line="6" column="0" />
+      </file>
+      <file name="$USER_HOME$/Documents/Python/HelloWorld/CF_Tample.template" timestamp="1557115407454">
+        <mark key="[" line="4" column="2" />
+      </file>
+    </filemarks>
+    <jumps />
+    <registers>
+      <register name="1" type="2">
+        <text encoding="base64">ICAgICJQdWJsaWNTdWJuZXQiIDogewo=</text>
+      </register>
+      <register name="&quot;" type="2">
+        <text encoding="base64">ICAgICJQdWJsaWNTdWJuZXQiIDogewo=</text>
+      </register>
+      <register name="2" type="4">
+        <text>&quot;VPC&quot; : {
+      &quot;Type&quot; : &quot;AWS::EC2::VPC&quot;,
+      &quot;Properties&quot; : {
+        &quot;EnableDnsSupport&quot; : &quot;true&quot;,
+        &quot;EnableDnsHostnames&quot; : &quot;true&quot;,
+        &quot;CidrBlock&quot; : &quot;10.0.0.0/16&quot;
+      }
+    },
+    &quot;</text>
+      </register>
+      <register name="u" type="4">
+        <text />
+      </register>
+      <register name=":" type="4">
+        <text>q</text>
+      </register>
+      <register name="-" type="4">
+        <text>0</text>
+      </register>
+    </registers>
+    <search>
+      <last-dir>0</last-dir>
+      <show-last>false</show-last>
+    </search>
+    <history>
+      <history-search />
+      <history-cmd>
+        <entry>q</entry>
+      </history-cmd>
+      <history-expr />
+      <history-input />
+    </history>
+    <shortcut-conflicts>
+      <shortcut-conflict owner="vim">
+        <text>ctrl pressed C</text>
+      </shortcut-conflict>
+      <shortcut-conflict owner="vim">
+        <text>ctrl pressed D</text>
+      </shortcut-conflict>
+      <shortcut-conflict owner="vim">
+        <text>ctrl pressed V</text>
+      </shortcut-conflict>
+      <shortcut-conflict owner="vim">
+        <text>ctrl pressed X</text>
+      </shortcut-conflict>
+    </shortcut-conflicts>
+  </component>
+</application>
