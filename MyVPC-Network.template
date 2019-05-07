@@ -4,7 +4,7 @@
   "Description" : "",
 
   "Resources" : {
-      "CF-VPC" : {
+    "CFVPC" : {
       "Type" : "AWS::EC2::VPC",
       "Properties" : {
         "EnableDnsSupport" : "true",
@@ -15,7 +15,7 @@
     "DMZ1public" : {
       "Type" : "AWS::EC2::Subnet",
       "Properties" : {
-        "VpcId" : { "Ref" : "CF-VPC" },
+        "VpcId" : { "Ref" : "CFVPC" },
         "CidrBlock" : "10.0.1.0/24",
         "AvailabilityZone" : "us-west-2a"
       }
@@ -23,15 +23,15 @@
     "DMZ2public" : {
       "Type" : "AWS::EC2::Subnet",
       "Properties" : {
-        "VpcId" : { "Ref" : "CF-VPC" },
-        "CidrBlock" : "10.0.2.0/24",
+        "VpcId" : { "Ref" : "CFVPC" },
+        "CidrBlock" : "10.0.2.0/24", 
         "AvailabilityZone" : "us-west-2b"
       }
     },
     "AppLayer1private" : {
       "Type" : "AWS::EC2::Subnet",
       "Properties" : {
-        "VpcId" : { "Ref" : "CF-VPC" },
+        "VpcId" : { "Ref" : "CFVPC" },
         "CidrBlock" : "10.0.11.0/24",
         "AvailabilityZone" : "us-west-2a"
       }
@@ -39,7 +39,7 @@
     "AppLayer2private" : {
       "Type" : "AWS::EC2::Subnet",
       "Properties" : {
-        "VpcId" : { "Ref" : "CF-VPC" },
+        "VpcId" : { "Ref" : "CFVPC" },
         "CidrBlock" : "10.0.12.0/24",
         "AvailabilityZone" : "us-west-2b"
       }
@@ -47,7 +47,7 @@
     "DBLayer1private" : {
       "Type" : "AWS::EC2::Subnet",
       "Properties" : {
-        "VpcId" : { "Ref" : "CF-VPC" },
+        "VpcId" : { "Ref" : "CFVPC" },
         "CidrBlock" : "10.0.21.0/24",
         "AvailabilityZone" : "us-west-2a"
       }
@@ -55,7 +55,7 @@
     "DBLayer2private" : {
       "Type" : "AWS::EC2::Subnet",
       "Properties" : {
-        "VpcId" : { "Ref" : "CF-VPC" },
+        "VpcId" : { "Ref" : "CFVPC" },
         "CidrBlock" : "10.0.22.0/24",
         "AvailabilityZone" : "us-west-2b"
       }
@@ -67,7 +67,7 @@
     "VPCGatewayAttachment" : {
        "Type" : "AWS::EC2::VPCGatewayAttachment",
        "Properties" : {
-         "VpcId" : { "Ref" : "CF-VPC" },
+         "VpcId" : { "Ref" : "CFVPC" },
          "InternetGatewayId" : { "Ref" : "InternetGateway" }
        }
     },
@@ -75,9 +75,9 @@
       "Type" : "AWS::EC2::SecurityGroup",
       "Properties" : {
         "GroupDescription" : "Enable SSH",
-        "VpcId" : { "Ref" : "CF-VPC" },
+        "VpcId" : { "Ref" : "CFVPC" },
         "SecurityGroupIngress" : [
-          {"IpProtocol" : "ssh","FromPort" : "22","ToPort" : "22","CidrIp" : "0.0.0.0/0"}
+          {"IpProtocol" : "tcp","FromPort" : "22","ToPort" : "22","CidrIp" : "0.0.0.0/0"}
           ]
       }
     },
@@ -85,10 +85,10 @@
       "Type" : "AWS::EC2::SecurityGroup",
       "Properties" : {
         "GroupDescription" : "Enable HTTP ingress + SSH",
-        "VpcId" : { "Ref" : "CF-VPC" },
+        "VpcId" : { "Ref" : "CFVPC" },
         "SecurityGroupIngress" : [ 
           {"IpProtocol" : "tcp","FromPort" : "80","ToPort" : "80","CidrIp" : "0.0.0.0/0"},
-          {"IpProtocol" : "ssh","FromPort" : "22","ToPort" : "22","CidrIp" : "0.0.0.0/0"} 
+          {"IpProtocol" : "tcp","FromPort" : "22","ToPort" : "22","CidrIp" : "0.0.0.0/0"}
         ]
       }
     },
@@ -96,7 +96,7 @@
       "Type" : "AWS::EC2::SecurityGroup",
       "Properties" : {
         "GroupDescription" : "Enable SG",
-        "VpcId" : { "Ref" : "CF-VPC" },
+        "VpcId" : { "Ref" : "CFVPC" },
         "SecurityGroupIngress" : [
           {"IpProtocol" : "tcp","FromPort" : "3306","ToPort" : "3306","SourceSecurityGroupName" : {"Ref" : "WebServerSG"}}
           ]
