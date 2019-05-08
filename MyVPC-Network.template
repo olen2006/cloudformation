@@ -7,11 +7,47 @@
       "Properties": {
         "EnableDnsSupport": "true",
         "EnableDnsHostnames": "true",
-        "CidrBlock": "10.0.0.0/16",
-        "Tags": [
+        "CidrBlock": "10.0.0.0/16"
+      }
+    },
+    "Bastion": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "KeyName": {
+          "Ref": "KeyName"
+        },
+        "InstanceType": {
+          "Ref": "InstanceType"
+        },
+        "ImageId": {
+          "Fn::FindInMap": [
+            "AWSRegionArch2AMI",
+            {
+              "Ref": "AWS::Region"
+            },
+            {
+              "Fn::FindInMap": [
+                "AWSInstanceType2Arch",
+                {
+                  "Ref": "InstanceType"
+                },
+                "Arch"
+              ]
+            }
+          ]
+        },
+        "NetworkInterfaces": [
           {
-            "Key": "Name",
-            "Value": "CF-VPC"
+            "AssociatePublicIpAddress": "true",
+            "DeviceIndex": "0",
+            "GroupSet": [
+              {
+                "Ref": "BastionSG"
+              }
+            ],
+            "SubnetId": {
+              "Ref": "DMZ1public"
+            }
           }
         ]
       }
@@ -77,13 +113,7 @@
       }
     },
     "InternetGateway": {
-      "Type": "AWS::EC2::InternetGateway",
-      "Tags": [
-          {
-            "Key": "Name",
-            "Value": "CF-"
-          }
-        ]
+      "Type": "AWS::EC2::InternetGateway"
     },
     "VPCGatewayAttachment": {
       "Type": "AWS::EC2::VPCGatewayAttachment",
@@ -100,7 +130,7 @@
       "Type": "AWS::EC2::SecurityGroup",
       "Properties": {
         "GroupDescription": "Enable SSH",
-         "GroupName" : "BastionSG",
+        "GroupName": "BastionSG",
         "VpcId": {
           "Ref": "CFVPC"
         },
@@ -109,7 +139,9 @@
             "IpProtocol": "tcp",
             "FromPort": "22",
             "ToPort": "22",
-            "CidrIp": "0.0.0.0/0"
+            "CidrIp": {
+              "Ref": "SSHLocation"
+            }
           }
         ]
       }
@@ -118,7 +150,7 @@
       "Type": "AWS::EC2::SecurityGroup",
       "Properties": {
         "GroupDescription": "Enable HTTP ingress + SSH",
-        "GroupName" : "WebServerSG",
+        "GroupName": "WebServerSG",
         "VpcId": {
           "Ref": "CFVPC"
         },
@@ -144,22 +176,89 @@
         ]
       }
     },
-    
     "DatabaseSG": {
       "Type": "AWS::EC2::SecurityGroup",
       "Properties": {
         "GroupDescription": "Open database for access",
-        "GroupName" : "DatabaseSG",
+        "GroupName": "DatabaseSG",
         "VpcId": {
           "Ref": "CFVPC"
         },
-        "SecurityGroupIngress": [{
-        "IpProtocol": "tcp",
-        "FromPort": "3306",
-        "ToPort": "3306",
-        "SourceSecurityGroupId": {"Ref": "WebServerSG"}
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "3306",
+            "ToPort": "3306",
+            "SourceSecurityGroupId": {
+              "Ref": "WebServerSG"
+            }
           }
         ]
+      }
+    }
+  },
+  "Parameters": {
+    "KeyName": {
+      "Description": "Name of an existing EC2 KeyPair to enable SSH access to the instances",
+      "Type": "AWS::EC2::KeyPair::KeyName",
+      "ConstraintDescription": "must be the name of an existing EC2 KeyPair."
+    },
+    "InstanceType": {
+      "Description": "WebServer EC2 instance type",
+      "Type": "String",
+      "Default": "t2.micro",
+      "AllowedValues": [
+        "t1.micro",
+        "t2.nano",
+        "t2.micro"
+      ],
+      "ConstraintDescription": "must be a valid EC2 instance type."
+    },
+    "SSHLocation": {
+      "Description": "The IP address range that can be used to SSH to the EC2 instances",
+      "Type": "String",
+      "MinLength": "9",
+      "MaxLength": "18",
+      "Default": "0.0.0.0/0",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+      "ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+    }
+  },
+  "Mappings": {
+    "AWSInstanceType2Arch": {
+      "t1.micro": {
+        "Arch": "HVM64"
+      },
+      "t2.nano": {
+        "Arch": "HVM64"
+      },
+      "t2.micro": {
+        "Arch": "HVM64"
+      }
+    },
+    "AWSInstanceType2NATArch": {
+      "t1.micro": {
+        "Arch": "NATHVM64"
+      },
+      "t2.nano": {
+        "Arch": "NATHVM64"
+      },
+      "t2.micro": {
+        "Arch": "NATHVM64"
+      }
+    },
+    "AWSRegionArch2AMI": {
+      "us-east-1": {
+        "HVM64": "ami-0080e4c5bc078760e",
+        "HVMG2": "ami-0aeb704d503081ea6"
+      },
+      "us-west-2": {
+        "HVM64": "ami-01e24be29428c15b2",
+        "HVMG2": "ami-0fe84a5b4563d8f27"
+      },
+      "us-east-2": {
+        "HVM64": "ami-0cd3dfa4e37921605",
+        "HVMG2": "NOT_SUPPORTED"
       }
     }
   }
