@@ -10,48 +10,6 @@
         "CidrBlock": "10.0.0.0/16"
       }
     },
-    "Bastion": {
-      "Type": "AWS::EC2::Instance",
-      "Properties": {
-        "KeyName": {
-          "Ref": "KeyName"
-        },
-        "InstanceType": {
-          "Ref": "InstanceType"
-        },
-        "ImageId": {
-          "Fn::FindInMap": [
-            "AWSRegionArch2AMI",
-            {
-              "Ref": "AWS::Region"
-            },
-            {
-              "Fn::FindInMap": [
-                "AWSInstanceType2Arch",
-                {
-                  "Ref": "InstanceType"
-                },
-                "Arch"
-              ]
-            }
-          ]
-        },
-        "NetworkInterfaces": [
-          {
-            "AssociatePublicIpAddress": "true",
-            "DeviceIndex": "0",
-            "GroupSet": [
-              {
-                "Ref": "BastionSG"
-              }
-            ],
-            "SubnetId": {
-              "Ref": "DMZ1public"
-            }
-          }
-        ]
-      }
-    },
     "DMZ1public": {
       "Type": "AWS::EC2::Subnet",
       "Properties": {
@@ -126,6 +84,29 @@
         }
       }
     },
+    "RouteTable" : {
+      "Type" : "AWS::EC2::RouteTable",
+      "Properties" : {
+        "VpcId" : {"Ref" : "CFVPC"},
+        "Tags" : [ {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} } ]
+      }
+    },
+     "Route" : {
+      "Type" : "AWS::EC2::Route",
+      "DependsOn" : "VPCGatewayAttachment",
+      "Properties" : {
+        "RouteTableId" : { "Ref" : "RouteTable" },
+        "DestinationCidrBlock" : "0.0.0.0/0",
+        "GatewayId" : { "Ref" : "InternetGateway" }
+      }
+    },
+     "SubnetRouteTableAssociation" : {
+      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties" : {
+        "SubnetId" : { "Ref" : "DMZ1public" },
+        "RouteTableId" : { "Ref" : "RouteTable" }
+      }
+    },
     "BastionSG": {
       "Type": "AWS::EC2::SecurityGroup",
       "Properties": {
@@ -191,6 +172,48 @@
             "ToPort": "3306",
             "SourceSecurityGroupId": {
               "Ref": "WebServerSG"
+            }
+          }
+        ]
+      }
+    },
+    "Bastion": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "KeyName": {
+          "Ref": "KeyName"
+        },
+        "InstanceType": {
+          "Ref": "InstanceType"
+        },
+        "ImageId": {
+          "Fn::FindInMap": [
+            "AWSRegionArch2AMI",
+            {
+              "Ref": "AWS::Region"
+            },
+            {
+              "Fn::FindInMap": [
+                "AWSInstanceType2Arch",
+                {
+                  "Ref": "InstanceType"
+                },
+                "Arch"
+              ]
+            }
+          ]
+        },
+        "NetworkInterfaces": [
+          {
+            "AssociatePublicIpAddress": "true",
+            "DeviceIndex": "0",
+            "GroupSet": [
+              {
+                "Ref": "BastionSG"
+              }
+            ],
+            "SubnetId": {
+              "Ref": "DMZ1public"
             }
           }
         ]
