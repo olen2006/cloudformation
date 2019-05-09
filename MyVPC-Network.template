@@ -84,6 +84,63 @@
         }
       }
     },
+    "NatGWAttachment" : {
+      "Type" : "AWS::EC2::NatGateway",
+      "Properties" : {
+        "AllocationId" : { "Fn::GetAtt" : ["NATEIP", "AllocationId"]},
+        "SubnetId" : { "Ref" : "DMZ2public"}
+      }
+    },
+    "NATEIP" : {
+      "DependsOn" : "VPCGatewayAttachment",
+      "Type" : "AWS::EC2::EIP",
+      "Properties" : {
+      "Domain" : "vpc"
+     }
+    },
+    "NATIGRT" : {
+      "Type" : "AWS::EC2::Route",
+      "Properties" : {
+        "RouteTableId" : { "Ref" : "PrivateRT" },
+        "DestinationCidrBlock" : "0.0.0.0/0",
+        "NatGatewayId" : { "Ref" : "NatGWAttachment" }
+     }
+  },
+     "PrivateRT" : {
+      "Type" : "AWS::EC2::RouteTable",
+      "Properties" : {
+        "VpcId" : {"Ref" : "CFVPC"},
+        "Tags" : [ {"Key" : "Name", "Value" : "PrivateRT"} ]
+      }
+    },
+    "AppLayer1privateRTAssociation" : {
+      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties" : {
+        "SubnetId" : { "Ref" : "AppLayer1private" },
+        "RouteTableId" : { "Ref" : "PrivateRT" }
+      }
+    },
+    "AppLayer2privateRTAssociation" : {
+      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties" : {
+        "SubnetId" : { "Ref" : "AppLayer2private" },
+        "RouteTableId" : { "Ref" : "PrivateRT" }
+      }
+    },
+    "DBLayer1privateRTAssociation" : {
+      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties" : {
+        "SubnetId" : { "Ref" : "DBLayer1private" },
+        "RouteTableId" : { "Ref" : "PrivateRT" }
+      }
+    },
+       "DBLayer2privateRTAssociation" : {
+      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties" : {
+        "SubnetId" : { "Ref" : "DBLayer2private" },
+        "RouteTableId" : { "Ref" : "PrivateRT" }
+      }
+    },
     "PublicRT" : {
       "Type" : "AWS::EC2::RouteTable",
       "Properties" : {
