@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "VPC, IGW,SG",
+  "Description": "VPC,IGW,SG,BastionEC2,SSH",
   "Resources": {
     "CFVPC": {
       "Type": "AWS::EC2::VPC",
@@ -84,27 +84,34 @@
         }
       }
     },
-    "RouteTable" : {
+    "PublicRT" : {
       "Type" : "AWS::EC2::RouteTable",
       "Properties" : {
         "VpcId" : {"Ref" : "CFVPC"},
-        "Tags" : [ {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} } ]
+        "Tags" : [ {"Key" : "Name", "Value" : "PublicRT"} ]
       }
     },
-     "Route" : {
+     "IGRoute" : {
       "Type" : "AWS::EC2::Route",
       "DependsOn" : "VPCGatewayAttachment",
       "Properties" : {
-        "RouteTableId" : { "Ref" : "RouteTable" },
+        "RouteTableId" : { "Ref" : "PublicRT" },
         "DestinationCidrBlock" : "0.0.0.0/0",
         "GatewayId" : { "Ref" : "InternetGateway" }
       }
     },
-     "SubnetRouteTableAssociation" : {
+     "DMZ1publicRTAssociation" : {
       "Type" : "AWS::EC2::SubnetRouteTableAssociation",
       "Properties" : {
         "SubnetId" : { "Ref" : "DMZ1public" },
-        "RouteTableId" : { "Ref" : "RouteTable" }
+        "RouteTableId" : { "Ref" : "PublicRT" }
+      }
+    },
+    "DMZ2publicRTAssociation" : {
+      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties" : {
+        "SubnetId" : { "Ref" : "DMZ2public" },
+        "RouteTableId" : { "Ref" : "PublicRT" }
       }
     },
     "BastionSG": {
