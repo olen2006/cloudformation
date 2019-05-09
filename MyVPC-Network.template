@@ -567,9 +567,8 @@
         "SubnetId" : { "Ref" : "DBLayer2private" },
         "NetworkAclId" : { "Ref" : "DBNetworkAcl" }
       }
-    },
+    }
   },
-  
   "Parameters": {
     "KeyName": {
       "Description": "Name of an existing EC2 KeyPair to enable SSH access to the instances",
