@@ -106,7 +106,7 @@
         "NatGatewayId" : { "Ref" : "NatGWAttachment" }
      }
   },
-     "PrivateRT" : {
+    "PrivateRT" : {
       "Type" : "AWS::EC2::RouteTable",
       "Properties" : {
         "VpcId" : {"Ref" : "CFVPC"},
@@ -134,7 +134,7 @@
         "RouteTableId" : { "Ref" : "PrivateRT" }
       }
     },
-       "DBLayer2privateRTAssociation" : {
+    "DBLayer2privateRTAssociation" : {
       "Type" : "AWS::EC2::SubnetRouteTableAssociation",
       "Properties" : {
         "SubnetId" : { "Ref" : "DBLayer2private" },
@@ -148,7 +148,7 @@
         "Tags" : [ {"Key" : "Name", "Value" : "PublicRT"} ]
       }
     },
-     "IGRoute" : {
+    "IGRoute" : {
       "Type" : "AWS::EC2::Route",
       "DependsOn" : "VPCGatewayAttachment",
       "Properties" : {
@@ -157,7 +157,7 @@
         "GatewayId" : { "Ref" : "InternetGateway" }
       }
     },
-     "DMZ1publicRTAssociation" : {
+    "DMZ1publicRTAssociation" : {
       "Type" : "AWS::EC2::SubnetRouteTableAssociation",
       "Properties" : {
         "SubnetId" : { "Ref" : "DMZ1public" },
@@ -240,7 +240,98 @@
           }
         ]
       }
+    }, 
+    "DMZNetworkAcl" : {
+      "Type": "AWS::EC2::NetworkAcl",
+      "Properties": {
+        "VpcId": {"Ref": "CFVPC"},
+        "Tags": [{ "Key": "foo","Value": "bar"}]
+      }
+   }, 
+    "InboundSSHNetworkAclEntry" : {
+      "Type" : "AWS::EC2::NetworkAclEntry",
+      "Properties" : {
+        "NetworkAclId" : {"Ref" : "DMZNetworkAcl"},
+        "RuleNumber" : "110",
+        "Protocol" : "6",
+        "RuleAction" : "allow",
+        "Egress" : "false",
+        "CidrBlock" : "0.0.0.0/0",
+        "PortRange" : {"From" : "22", "To" : "22"}
+      }
     },
+    "InboundHTTPNetworkAclEntry" : {
+      "Type" : "AWS::EC2::NetworkAclEntry",
+      "Properties" : {
+        "NetworkAclId" : {"Ref" : "DMZNetworkAcl"},
+        "RuleNumber" : "120",
+        "Protocol" : "6",
+        "RuleAction" : "allow",
+        "Egress" : "false",
+        "CidrBlock" : "0.0.0.0/0",
+        "PortRange" : {"From" : "80", "To" : "80"}
+      }
+    }, 
+    "InboundHTTPSNetworkAclEntry" : {
+      "Type" : "AWS::EC2::NetworkAclEntry",
+      "Properties" : {
+        "NetworkAclId" : {"Ref" : "DMZNetworkAcl"},
+        "RuleNumber" : "130",
+        "Protocol" : "6",
+        "RuleAction" : "allow",
+        "Egress" : "false",
+        "CidrBlock" : "0.0.0.0/0",
+        "PortRange" : {"From" : "443", "To" : "443"}
+      }
+    },
+    "InboundResponsePortsNetworkAclEntry" : {
+      "Type" : "AWS::EC2::NetworkAclEntry",
+      "Properties" : {
+        "NetworkAclId" : {"Ref" : "DMZNetworkAcl"},
+        "RuleNumber" : "140",
+        "Protocol" : "6",
+        "RuleAction" : "allow",
+        "Egress" : "false",
+        "CidrBlock" : "0.0.0.0/0",
+        "PortRange" : {"From" : "1024", "To" : "65535"}
+      }
+    },
+    "OutBoundHTTPNetworkAclEntry" : {
+      "Type" : "AWS::EC2::NetworkAclEntry",
+      "Properties" : {
+        "NetworkAclId" : {"Ref" : "DMZNetworkAcl"},
+        "RuleNumber" : "110",
+        "Protocol" : "6",
+        "RuleAction" : "allow",
+        "Egress" : "true",
+        "CidrBlock" : "0.0.0.0/0",
+        "PortRange" : {"From" : "80", "To" : "80"}
+      }
+    },
+    "OutBoundHTTPSNetworkAclEntry" : {
+      "Type" : "AWS::EC2::NetworkAclEntry",
+      "Properties" : {
+        "NetworkAclId" : {"Ref" : "DMZNetworkAcl"},
+        "RuleNumber" : "120",
+        "Protocol" : "6",
+        "RuleAction" : "allow",
+        "Egress" : "true",
+        "CidrBlock" : "0.0.0.0/0",
+        "PortRange" : {"From" : "443", "To" : "443"}
+      }
+    },
+    "OutBoundResponsePortsNetworkAclEntry" : {
+      "Type" : "AWS::EC2::NetworkAclEntry",
+      "Properties" : {
+        "NetworkAclId" : {"Ref" : "DMZNetworkAcl"},
+        "RuleNumber" : "130",
+        "Protocol" : "6",
+        "RuleAction" : "allow",
+        "Egress" : "true",
+        "CidrBlock" : "10.0.0.0/16",
+        "PortRange" : {"From" : "1024", "To" : "65535"}
+      }
+    }, 
     "Bastion": {
       "Type": "AWS::EC2::Instance",
       "Properties": {
