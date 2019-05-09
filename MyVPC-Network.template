@@ -17,7 +17,8 @@
           "Ref": "CFVPC"
         },
         "CidrBlock": "10.0.1.0/24",
-        "AvailabilityZone": "us-west-2a"
+        "AvailabilityZone": "us-west-2a",
+        "Tags" : [ {"Key" : "Name", "Value" : "DMZ1public" } ]
       }
     },
     "DMZ2public": {
@@ -27,7 +28,8 @@
           "Ref": "CFVPC"
         },
         "CidrBlock": "10.0.2.0/24",
-        "AvailabilityZone": "us-west-2b"
+        "AvailabilityZone": "us-west-2b",
+         "Tags" : [ {"Key" : "Name", "Value" : "DMZ2public" } ]
       }
     },
     "AppLayer1private": {
@@ -37,7 +39,8 @@
           "Ref": "CFVPC"
         },
         "CidrBlock": "10.0.11.0/24",
-        "AvailabilityZone": "us-west-2a"
+        "AvailabilityZone": "us-west-2a",
+         "Tags" : [ {"Key" : "Name", "Value" : "AppLayer1private" }]
       }
     },
     "AppLayer2private": {
@@ -47,7 +50,8 @@
           "Ref": "CFVPC"
         },
         "CidrBlock": "10.0.12.0/24",
-        "AvailabilityZone": "us-west-2b"
+        "AvailabilityZone": "us-west-2b",
+         "Tags" : [ {"Key" : "Name", "Value" : "AppLayer2private" } ]
       }
     },
     "DBLayer1private": {
@@ -57,7 +61,8 @@
           "Ref": "CFVPC"
         },
         "CidrBlock": "10.0.21.0/24",
-        "AvailabilityZone": "us-west-2a"
+        "AvailabilityZone": "us-west-2a",
+        "Tags" : [{"Key" : "Name", "Value" : "DBLayer1private" }]
       }
     },
     "DBLayer2private": {
@@ -67,7 +72,8 @@
           "Ref": "CFVPC"
         },
         "CidrBlock": "10.0.22.0/24",
-        "AvailabilityZone": "us-west-2b"
+        "AvailabilityZone": "us-west-2b",
+         "Tags" : [ {"Key" : "Name", "Value": "DBLayer2private" } ]
       }
     },
     "InternetGateway": {
@@ -245,10 +251,10 @@
       "Type": "AWS::EC2::NetworkAcl",
       "Properties": {
         "VpcId": {"Ref": "CFVPC"},
-        "Tags": [{ "Key": "foo","Value": "bar"}]
+        "Tags": [{ "Key": "Name","Value": "DMZNetworkACL"}]
       }
-   }, 
-    "InboundSSHNetworkAclEntry" : {
+   },
+    "InboundSSHDMZNetworkAclEntry" : {
       "Type" : "AWS::EC2::NetworkAclEntry",
       "Properties" : {
         "NetworkAclId" : {"Ref" : "DMZNetworkAcl"},
@@ -260,7 +266,7 @@
         "PortRange" : {"From" : "22", "To" : "22"}
       }
     },
-    "InboundHTTPNetworkAclEntry" : {
+    "InboundHTTPDMZNetworkAclEntry" : {
       "Type" : "AWS::EC2::NetworkAclEntry",
       "Properties" : {
         "NetworkAclId" : {"Ref" : "DMZNetworkAcl"},
@@ -272,7 +278,7 @@
         "PortRange" : {"From" : "80", "To" : "80"}
       }
     }, 
-    "InboundHTTPSNetworkAclEntry" : {
+    "InboundHTTPSDMZNetworkAclEntry" : {
       "Type" : "AWS::EC2::NetworkAclEntry",
       "Properties" : {
         "NetworkAclId" : {"Ref" : "DMZNetworkAcl"},
@@ -284,7 +290,7 @@
         "PortRange" : {"From" : "443", "To" : "443"}
       }
     },
-    "InboundResponsePortsNetworkAclEntry" : {
+    "InboundResponsePortsDMZNetworkAclEntry" : {
       "Type" : "AWS::EC2::NetworkAclEntry",
       "Properties" : {
         "NetworkAclId" : {"Ref" : "DMZNetworkAcl"},
@@ -296,7 +302,7 @@
         "PortRange" : {"From" : "1024", "To" : "65535"}
       }
     },
-    "OutBoundHTTPNetworkAclEntry" : {
+    "OutBoundHTTPDMZNetworkAclEntry" : {
       "Type" : "AWS::EC2::NetworkAclEntry",
       "Properties" : {
         "NetworkAclId" : {"Ref" : "DMZNetworkAcl"},
@@ -308,7 +314,7 @@
         "PortRange" : {"From" : "80", "To" : "80"}
       }
     },
-    "OutBoundHTTPSNetworkAclEntry" : {
+    "OutBoundHTTPSDMZNetworkAclEntry" : {
       "Type" : "AWS::EC2::NetworkAclEntry",
       "Properties" : {
         "NetworkAclId" : {"Ref" : "DMZNetworkAcl"},
@@ -320,7 +326,7 @@
         "PortRange" : {"From" : "443", "To" : "443"}
       }
     },
-    "OutBoundResponsePortsNetworkAclEntry" : {
+    "OutBoundResponsePortsDMZNetworkAclEntry" : {
       "Type" : "AWS::EC2::NetworkAclEntry",
       "Properties" : {
         "NetworkAclId" : {"Ref" : "DMZNetworkAcl"},
@@ -328,7 +334,7 @@
         "Protocol" : "6",
         "RuleAction" : "allow",
         "Egress" : "true",
-        "CidrBlock" : "10.0.0.0/16",
+        "CidrBlock" : {"Fn::GetAtt": ["CFVPC","CidrBlock"]},
         "PortRange" : {"From" : "1024", "To" : "65535"}
       }
     }, 
@@ -373,8 +379,197 @@
           }
         ]
       }
-    }
+    },
+    "AppNetworkAcl" : {
+      "Type": "AWS::EC2::NetworkAcl",
+      "Properties": {
+        "VpcId": {"Ref": "CFVPC"},
+        "Tags": [{"Key": "Name","Value": "AppNetworkACL"}]
+      }
+    },
+    "InboundSSHAppNetworkAclEntry" : {
+      "Type" : "AWS::EC2::NetworkAclEntry",
+      "Properties" : {
+        "NetworkAclId" : {"Ref" : "AppNetworkAcl"},
+        "RuleNumber" : "110",
+        "Protocol" : "6",
+        "RuleAction" : "allow",
+        "Egress" : "false",
+        "CidrBlock" : {"Fn::GetAtt": ["CFVPC","CidrBlock"]},
+        "PortRange" : {"From" : "22", "To" : "22"}
+      }
+    },
+    "InboundHTTPAppNetworkAclEntry" : {
+      "Type" : "AWS::EC2::NetworkAclEntry",
+      "Properties" : {
+        "NetworkAclId" : {"Ref" : "AppNetworkAcl"},
+        "RuleNumber" : "120",
+        "Protocol" : "6",
+        "RuleAction" : "allow",
+        "Egress" : "false",
+        "CidrBlock" : {"Fn::GetAtt": ["CFVPC","CidrBlock"]},
+        "PortRange" : {"From" : "80", "To" : "80"}
+      }
+    }, 
+    "InboundHTTPSAppNetworkAclEntry" : {
+      "Type" : "AWS::EC2::NetworkAclEntry",
+      "Properties" : {
+        "NetworkAclId" : {"Ref" : "AppNetworkAcl"},
+        "RuleNumber" : "130",
+        "Protocol" : "6",
+        "RuleAction" : "allow",
+        "Egress" : "false",
+        "CidrBlock" : {"Fn::GetAtt": ["CFVPC","CidrBlock"]},
+        "PortRange" : {"From" : "443", "To" : "443"}
+      }
+    },
+    "InboundResponsePortsAppNetworkAclEntry" : {
+      "Type" : "AWS::EC2::NetworkAclEntry",
+      "Properties" : {
+        "NetworkAclId" : {"Ref" : "AppNetworkAcl"},
+        "RuleNumber" : "140",
+        "Protocol" : "6",
+        "RuleAction" : "allow",
+        "Egress" : "false",
+        "CidrBlock" : "0.0.0.0/0",
+        "PortRange" : {"From" : "1024", "To" : "65535"}
+      }
+    },
+    "OutBoundHTTPAppNetworkAclEntry" : {
+      "Type" : "AWS::EC2::NetworkAclEntry",
+      "Properties" : {
+        "NetworkAclId" : {"Ref" : "AppNetworkAcl"},
+        "RuleNumber" : "110",
+        "Protocol" : "6",
+        "RuleAction" : "allow",
+        "Egress" : "true",
+        "CidrBlock" : "0.0.0.0/0",
+        "PortRange" : {"From" : "80", "To" : "80"}
+      }
+    },
+    "OutBoundHTTPsAppNetworkAclEntry" : {
+      "Type" : "AWS::EC2::NetworkAclEntry",
+      "Properties" : {
+        "NetworkAclId" : {"Ref" : "AppNetworkAcl"},
+        "RuleNumber" : "120",
+        "Protocol" : "6",
+        "RuleAction" : "allow",
+        "Egress" : "true",
+        "CidrBlock" : "0.0.0.0/0",
+        "PortRange" : {"From" : "443", "To" : "443"}
+      }
+    },
+    "OutBoundResponsePortsAppetworkAclEntry" : {
+      "Type" : "AWS::EC2::NetworkAclEntry",
+      "Properties" : {
+        "NetworkAclId" : {"Ref" : "DMZNetworkAcl"},
+        "RuleNumber" : "130",
+        "Protocol" : "6",
+        "RuleAction" : "allow",
+        "Egress" : "true",
+        "CidrBlock" : {"Fn::GetAtt": ["CFVPC","CidrBlock"]},
+        "PortRange" : {"From" : "1024", "To" : "65535"}
+      }
+    }, 
+    "DBNetworkAcl" : {
+      "Type": "AWS::EC2::NetworkAcl",
+      "Properties": {
+        "VpcId": {"Ref": "CFVPC"},
+        "Tags": [{"Key": "Name","Value": "DBNetworkACL"}]
+      }
+    },
+    "InboundMySQLDBNetworkAclEntry" : {
+      "Type" : "AWS::EC2::NetworkAclEntry",
+      "Properties" : {
+        "NetworkAclId" : {"Ref" : "DBNetworkAcl"},
+        "RuleNumber" : "110",
+        "Protocol" : "6",
+        "RuleAction" : "allow",
+        "Egress" : "false",
+        "CidrBlock" : {"Fn::GetAtt": ["CFVPC","CidrBlock"]},
+        "PortRange" : {"From" : "3306", "To" : "3306"}
+      }
+    },
+    "InboundResponsePortsDBNetworkAclEntry" : {
+      "Type" : "AWS::EC2::NetworkAclEntry",
+      "Properties" : {
+        "NetworkAclId" : {"Ref" : "DBNetworkAcl"},
+        "RuleNumber" : "120",
+        "Protocol" : "6",
+        "RuleAction" : "allow",
+        "Egress" : "false",
+        "CidrBlock" : "0.0.0.0/0",
+        "PortRange" : {"From" : "1024", "To" : "65535"}
+      }
+    },
+    "OutBoundMySQLDBNetworkAclEntry" : {
+      "Type" : "AWS::EC2::NetworkAclEntry",
+      "Properties" : {
+        "NetworkAclId" : {"Ref" : "DBNetworkAcl"},
+        "RuleNumber" : "110",
+        "Protocol" : "6",
+        "RuleAction" : "allow",
+        "Egress" : "true",
+        "CidrBlock" : {"Fn::GetAtt": ["CFVPC","CidrBlock"]},
+        "PortRange" : {"From" : "3306", "To" : "3306"}
+      }
+    },
+    "OutboundResponsePortsBNetworkAclEntry" : {
+      "Type" : "AWS::EC2::NetworkAclEntry",
+      "Properties" : {
+        "NetworkAclId" : {"Ref" : "DBNetworkAcl"},
+        "RuleNumber" : "120",
+        "Protocol" : "6",
+        "RuleAction" : "allow",
+        "Egress" : "true",
+        "CidrBlock" : {"Fn::GetAtt": ["CFVPC","CidrBlock"]},
+        "PortRange" : {"From" : "3306", "To" : "3306"}
+      }
+    },
+    "DMZ1publicSubnetNetworkAclAssociation" : {
+      "Type" : "AWS::EC2::SubnetNetworkAclAssociation",
+      "Properties" : {
+        "SubnetId" : { "Ref" : "DMZ1public" },
+        "NetworkAclId" : { "Ref" : "DMZNetworkAcl" }
+      }
+    },
+    "DMZ2publicSubnetNetworkAclAssociation" : {
+      "Type" : "AWS::EC2::SubnetNetworkAclAssociation",
+      "Properties" : {
+        "SubnetId" : { "Ref" : "DMZ2public" },
+        "NetworkAclId" : { "Ref" : "DMZNetworkAcl" }
+      }
+    },
+    "AppLayer1privateSubnetNetworkAclAssociation" : {
+      "Type" : "AWS::EC2::SubnetNetworkAclAssociation",
+      "Properties" : {
+        "SubnetId" : { "Ref" : "AppLayer1private" },
+        "NetworkAclId" : { "Ref" : "AppNetworkAcl" }
+      }
+    },
+    "AppLayer2privateSubnetNetworkAclAssociation" : {
+      "Type" : "AWS::EC2::SubnetNetworkAclAssociation",
+      "Properties" : {
+        "SubnetId" : { "Ref" : "AppLayer2private" },
+        "NetworkAclId" : { "Ref" : "AppNetworkAcl" }
+      }
+    },
+     "DBLayer1privateSubnetNetworkAclAssociation" : {
+      "Type" : "AWS::EC2::SubnetNetworkAclAssociation",
+      "Properties" : {
+        "SubnetId" : { "Ref" : "DBLayer1private" },
+        "NetworkAclId" : { "Ref" : "DBNetworkAcl" }
+      }
+    },
+     "DBLayer2privateSubnetNetworkAclAssociation" : {
+      "Type" : "AWS::EC2::SubnetNetworkAclAssociation",
+      "Properties" : {
+        "SubnetId" : { "Ref" : "DBLayer2private" },
+        "NetworkAclId" : { "Ref" : "DBNetworkAcl" }
+      }
+    },
   },
+  
   "Parameters": {
     "KeyName": {
       "Description": "Name of an existing EC2 KeyPair to enable SSH access to the instances",
