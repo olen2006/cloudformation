@@ -20,6 +20,9 @@
         <mark key="]" line="279" column="5" />
         <mark key="." line="279" column="5" />
       </file>
+      <file name="$USER_HOME$/.aws/config" timestamp="1557417693877">
+        <mark key="[" line="2" column="12" />
+      </file>
       <file name="$USER_HOME$/Downloads/!.AWS picks/cloudformation-master/LAMPtemplateMultiAZ.yaml" timestamp="1557265685322">
         <mark key="[" line="0" column="0" />
       </file>
@@ -31,6 +34,9 @@
         <mark key="[" line="167" column="36" />
         <mark key="]" line="48" column="0" />
         <mark key="." line="48" column="0" />
+      </file>
+      <file name="$USER_HOME$/.aws/credentials" timestamp="1557417658627">
+        <mark key="[" line="1" column="31" />
       </file>
       <file name="$USER_HOME$/PycharmProjects/Cformation/CFormation-sample.template" timestamp="1557150740278">
         <mark key="[" line="33" column="16" />
