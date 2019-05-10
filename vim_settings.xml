@@ -3,16 +3,19 @@
     <state version="4" enabled="true" />
     <globalmarks />
     <filemarks>
-      <file name="/Dummy.txt" timestamp="1557467769601">
+      <file name="/start_script.py" timestamp="1557433535474">
+        <mark key="[" line="0" column="0" />
+      </file>
+      <file name="/Dummy.txt" timestamp="1557503536640">
         <mark key="[" line="0" column="0" />
         <mark key="]" line="0" column="0" />
         <mark key="." line="0" column="0" />
       </file>
-      <file name="$USER_HOME$/Documents/Python/HelloWorld/Cf_Sg_template.json" timestamp="1557115282543">
-        <mark key="[" line="5" column="36" />
-      </file>
-      <file name="$USER_HOME$/Documents/Python/HelloWorld/HelloWorld.py" timestamp="1554059595402">
+      <file name="$USER_HOME$/Downloads/!.AWS picks/cloudformation-master/LAMPTemplateMultiAZ.template" timestamp="1557352608355">
         <mark key="[" line="0" column="0" />
+      </file>
+      <file name="$USER_HOME$/Downloads/!.AWS picks/CloudFormation-VPC_modified.yaml" timestamp="1556747895029">
+        <mark key="[" line="74" column="0" />
       </file>
       <file name="/Python Console" timestamp="1557468035149">
         <mark key="[" line="0" column="0" />
@@ -22,23 +25,52 @@
         <mark key="]" line="13" column="0" />
         <mark key="." line="13" column="0" />
       </file>
-      <file name="$APPLICATION_CONFIG_DIR$/scratches/scratch.json" timestamp="1557113299067">
+      <file name="$USER_HOME$/Downloads/!.AWS picks/cloudformation-master/LAMPtemplateMultiAZ.yaml" timestamp="1557265685322">
         <mark key="[" line="0" column="0" />
       </file>
-      <file name="D:/downloads/Amazon AWS Certified Solutions Architect Associate Exam Dump Test PDF VCE (2018)-20190214T044510Z-001/CloudFormationFile/MyVPC-Network.template" timestamp="1557201627684">
-        <mark key="[" line="5" column="16" />
+      <file name="$USER_HOME$/PycharmProjects/cloudformation/MyVPC-Network.template" timestamp="1557501668150">
+        <mark key="[" line="2" column="92" />
       </file>
-      <file name="$USER_HOME$/Documents/Python/cloudformation/MyVPC-Network.template" timestamp="1557467759931">
-        <mark key="[" line="2" column="65" />
+      <file name="$USER_HOME$/.aws/credentials" timestamp="1557417658627">
+        <mark key="[" line="1" column="31" />
       </file>
       <file name="D:/downloads/AWS_SysOps_associate/CF_WordPress_Blog.yml" timestamp="1557193177828">
         <mark key="[" line="6" column="0" />
       </file>
-      <file name="$USER_HOME$/Documents/Python/HelloWorld/CF_Tample.template" timestamp="1557115407454">
-        <mark key="[" line="4" column="2" />
+      <file name="$APPLICATION_CONFIG_DIR$/scratches/scratch.json" timestamp="1557113299067">
+        <mark key="[" line="0" column="0" />
+      </file>
+      <file name="$USER_HOME$/Documents/Python/HelloWorld/Cf_Sg_template.json" timestamp="1557115282543">
+        <mark key="[" line="5" column="36" />
+      </file>
+      <file name="$USER_HOME$/Documents/Python/cloudformation/MyVPC-Network.template" timestamp="1557467759931">
+        <mark key="[" line="2" column="65" />
+      </file>
+      <file name="$USER_HOME$/Downloads/!.AWS picks/cloudformation-master/MyVPC-Network.template" timestamp="1557372672638">
+        <mark key="[" line="279" column="5" />
+        <mark key="]" line="279" column="5" />
+        <mark key="." line="279" column="5" />
       </file>
       <file name="$USER_HOME$/.aws/config" timestamp="1557466631334">
         <mark key="[" line="26" column="37" />
+      </file>
+      <file name="D:/downloads/Amazon AWS Certified Solutions Architect Associate Exam Dump Test PDF VCE (2018)-20190214T044510Z-001/CloudFormationFile/MyVPC-Network.template" timestamp="1557201627684">
+        <mark key="[" line="5" column="16" />
+      </file>
+      <file name="$USER_HOME$/Downloads/!.AWS picks/CloudFormation-VPC.yaml" timestamp="1556747396789">
+        <mark key="'" line="68" column="17" />
+        <mark key="[" line="167" column="36" />
+        <mark key="]" line="48" column="0" />
+        <mark key="." line="48" column="0" />
+      </file>
+      <file name="$USER_HOME$/Documents/Python/HelloWorld/HelloWorld.py" timestamp="1554059595402">
+        <mark key="[" line="0" column="0" />
+      </file>
+      <file name="$USER_HOME$/Documents/Python/HelloWorld/CF_Tample.template" timestamp="1557115407454">
+        <mark key="[" line="4" column="2" />
+      </file>
+      <file name="$USER_HOME$/PycharmProjects/Cformation/CFormation-sample.template" timestamp="1557150740278">
+        <mark key="[" line="33" column="16" />
       </file>
     </filemarks>
     <jumps />
@@ -69,16 +101,19 @@
       <register name="-" type="4">
         <text>Default Changelist</text>
       </register>
+      <register name="/" type="4">
+        <text encoding="base64">XDxWUENCbG9jazJcPg==</text>
+      </register>
     </registers>
     <search>
       <last-dir>0</last-dir>
       <show-last>false</show-last>
     </search>
     <history>
-      <history-search />
-      <history-cmd>
-        <entry>q</entry>
-      </history-cmd>
+      <history-search>
+        <entry encoding="base64">XDxWUENCbG9jazJcPg==</entry>
+      </history-search>
+      <history-cmd />
       <history-expr />
       <history-input />
     </history>
@@ -87,16 +122,22 @@
         <text>ctrl pressed C</text>
       </shortcut-conflict>
       <shortcut-conflict owner="vim">
-        <text>ctrl pressed D</text>
-      </shortcut-conflict>
-      <shortcut-conflict owner="vim">
         <text>ctrl pressed V</text>
       </shortcut-conflict>
       <shortcut-conflict owner="vim">
-        <text>ctrl pressed X</text>
+        <text>ctrl pressed F</text>
       </shortcut-conflict>
       <shortcut-conflict owner="vim">
         <text>ctrl pressed S</text>
+      </shortcut-conflict>
+      <shortcut-conflict owner="vim">
+        <text>ctrl pressed A</text>
+      </shortcut-conflict>
+      <shortcut-conflict owner="vim">
+        <text>ctrl pressed D</text>
+      </shortcut-conflict>
+      <shortcut-conflict owner="vim">
+        <text>ctrl pressed X</text>
       </shortcut-conflict>
     </shortcut-conflicts>
   </component>
