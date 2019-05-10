@@ -6,7 +6,7 @@
       <file name="/start_script.py" timestamp="1557433535474">
         <mark key="[" line="0" column="0" />
       </file>
-      <file name="/Dummy.txt" timestamp="1557503536640">
+      <file name="/Dummy.txt" timestamp="1557504075222">
         <mark key="[" line="0" column="0" />
         <mark key="]" line="0" column="0" />
         <mark key="." line="0" column="0" />
@@ -25,11 +25,17 @@
         <mark key="]" line="13" column="0" />
         <mark key="." line="13" column="0" />
       </file>
+      <file name="$USER_HOME$/PycharmProjects/cloudformation/CloudFormation-VPC.yaml" timestamp="1557504047335">
+        <mark key="[" line="8" column="35" />
+      </file>
       <file name="$USER_HOME$/Downloads/!.AWS picks/cloudformation-master/LAMPtemplateMultiAZ.yaml" timestamp="1557265685322">
         <mark key="[" line="0" column="0" />
       </file>
       <file name="$USER_HOME$/PycharmProjects/cloudformation/MyVPC-Network.template" timestamp="1557501668150">
         <mark key="[" line="2" column="92" />
+      </file>
+      <file name="$USER_HOME$/PycharmProjects/cloudformation/TroposphereCFTemplateExample.py" timestamp="1557504757324">
+        <mark key="[" line="0" column="0" />
       </file>
       <file name="$USER_HOME$/.aws/credentials" timestamp="1557417658627">
         <mark key="[" line="1" column="31" />
@@ -56,12 +62,6 @@
       </file>
       <file name="D:/downloads/Amazon AWS Certified Solutions Architect Associate Exam Dump Test PDF VCE (2018)-20190214T044510Z-001/CloudFormationFile/MyVPC-Network.template" timestamp="1557201627684">
         <mark key="[" line="5" column="16" />
-      </file>
-      <file name="$USER_HOME$/Downloads/!.AWS picks/CloudFormation-VPC.yaml" timestamp="1556747396789">
-        <mark key="'" line="68" column="17" />
-        <mark key="[" line="167" column="36" />
-        <mark key="]" line="48" column="0" />
-        <mark key="." line="48" column="0" />
       </file>
       <file name="$USER_HOME$/Documents/Python/HelloWorld/HelloWorld.py" timestamp="1554059595402">
         <mark key="[" line="0" column="0" />
