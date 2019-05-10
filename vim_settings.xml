@@ -17,7 +17,7 @@
       <file name="$USER_HOME$/Downloads/!.AWS picks/CloudFormation-VPC_modified.yaml" timestamp="1556747895029">
         <mark key="[" line="74" column="0" />
       </file>
-      <file name="/Python Console" timestamp="1557468035149">
+      <file name="/Python Console" timestamp="1557505983452">
         <mark key="[" line="0" column="0" />
       </file>
       <file name="D:/downloads/Amazon AWS Certified Solutions Architect Associate Exam Dump Test PDF VCE (2018)-20190214T044510Z-001/CloudFormationFile/SampleNetworkCrossStack.template" timestamp="1557197749403">
@@ -52,6 +52,9 @@
       <file name="$USER_HOME$/Documents/Python/cloudformation/MyVPC-Network.template" timestamp="1557467759931">
         <mark key="[" line="2" column="65" />
       </file>
+      <file name="$USER_HOME$/PycharmProjects/cloudformation/tr_template_generator.py" timestamp="1557505870008">
+        <mark key="[" line="3" column="8" />
+      </file>
       <file name="$USER_HOME$/Downloads/!.AWS picks/cloudformation-master/MyVPC-Network.template" timestamp="1557372672638">
         <mark key="[" line="279" column="5" />
         <mark key="]" line="279" column="5" />
@@ -62,6 +65,9 @@
       </file>
       <file name="D:/downloads/Amazon AWS Certified Solutions Architect Associate Exam Dump Test PDF VCE (2018)-20190214T044510Z-001/CloudFormationFile/MyVPC-Network.template" timestamp="1557201627684">
         <mark key="[" line="5" column="16" />
+      </file>
+      <file name="$USER_HOME$/PycharmProjects/cloudformation/generateTemplate.py" timestamp="1557506196502">
+        <mark key="[" line="2" column="40" />
       </file>
       <file name="$USER_HOME$/Documents/Python/HelloWorld/HelloWorld.py" timestamp="1554059595402">
         <mark key="[" line="0" column="0" />
@@ -138,6 +144,9 @@
       </shortcut-conflict>
       <shortcut-conflict owner="vim">
         <text>ctrl pressed X</text>
+      </shortcut-conflict>
+      <shortcut-conflict owner="vim">
+        <text>ctrl pressed N</text>
       </shortcut-conflict>
     </shortcut-conflicts>
   </component>
