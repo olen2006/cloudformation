@@ -3,8 +3,10 @@
     <state version="4" enabled="true" />
     <globalmarks />
     <filemarks>
-      <file name="/Dummy.txt" timestamp="1557465388465">
+      <file name="/Dummy.txt" timestamp="1557467330453">
         <mark key="[" line="0" column="0" />
+        <mark key="]" line="0" column="0" />
+        <mark key="." line="0" column="0" />
       </file>
       <file name="$USER_HOME$/Documents/Python/HelloWorld/Cf_Sg_template.json" timestamp="1557115282543">
         <mark key="[" line="5" column="36" />
@@ -26,11 +28,17 @@
       <file name="D:/downloads/Amazon AWS Certified Solutions Architect Associate Exam Dump Test PDF VCE (2018)-20190214T044510Z-001/CloudFormationFile/MyVPC-Network.template" timestamp="1557201627684">
         <mark key="[" line="5" column="16" />
       </file>
+      <file name="$USER_HOME$/Documents/Python/cloudformation/MyVPC-Network.template" timestamp="1557465804707">
+        <mark key="[" line="5" column="29" />
+      </file>
       <file name="D:/downloads/AWS_SysOps_associate/CF_WordPress_Blog.yml" timestamp="1557193177828">
         <mark key="[" line="6" column="0" />
       </file>
       <file name="$USER_HOME$/Documents/Python/HelloWorld/CF_Tample.template" timestamp="1557115407454">
         <mark key="[" line="4" column="2" />
+      </file>
+      <file name="$USER_HOME$/.aws/config" timestamp="1557466631334">
+        <mark key="[" line="26" column="37" />
       </file>
     </filemarks>
     <jumps />
@@ -38,8 +46,8 @@
       <register name="1" type="2">
         <text encoding="base64">ICAgICJQdWJsaWNTdWJuZXQiIDogewo=</text>
       </register>
-      <register name="&quot;" type="2">
-        <text encoding="base64">ICAgICJQdWJsaWNTdWJuZXQiIDogewo=</text>
+      <register name="&quot;" type="4">
+        <text>Default Changelist</text>
       </register>
       <register name="2" type="4">
         <text>&quot;VPC&quot; : {
@@ -59,7 +67,7 @@
         <text>q</text>
       </register>
       <register name="-" type="4">
-        <text>0</text>
+        <text>Default Changelist</text>
       </register>
     </registers>
     <search>
@@ -86,6 +94,9 @@
       </shortcut-conflict>
       <shortcut-conflict owner="vim">
         <text>ctrl pressed X</text>
+      </shortcut-conflict>
+      <shortcut-conflict owner="vim">
+        <text>ctrl pressed S</text>
       </shortcut-conflict>
     </shortcut-conflicts>
   </component>
