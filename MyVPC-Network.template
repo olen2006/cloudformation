@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "VPC,IGW,EIP,NATGW,SG,BastionEC2,SSH,NACL,Routes",
+  "Description": "VPC,IGW,EIP,NATGW,SG,BastionEC2,SSH,NACL,Route",
   "Resources": {
     "CFVPC": {
       "Type": "AWS::EC2::VPC",
