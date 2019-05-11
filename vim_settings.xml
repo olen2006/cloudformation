@@ -6,7 +6,7 @@
       <file name="/start_script.py" timestamp="1557433535474">
         <mark key="[" line="0" column="0" />
       </file>
-      <file name="/Dummy.txt" timestamp="1557504075222">
+      <file name="/Dummy.txt" timestamp="1557541009614">
         <mark key="[" line="0" column="0" />
         <mark key="]" line="0" column="0" />
         <mark key="." line="0" column="0" />
@@ -31,8 +31,10 @@
       <file name="$USER_HOME$/Downloads/!.AWS picks/cloudformation-master/LAMPtemplateMultiAZ.yaml" timestamp="1557265685322">
         <mark key="[" line="0" column="0" />
       </file>
-      <file name="$USER_HOME$/PycharmProjects/cloudformation/MyVPC-Network.template" timestamp="1557539929473">
-        <mark key="[" line="11" column="5" />
+      <file name="$USER_HOME$/PycharmProjects/cloudformation/MyVPC-Network.template" timestamp="1557541743012">
+        <mark key="[" line="1192" column="2" />
+        <mark key="]" line="1198" column="18" />
+        <mark key="." line="1192" column="2" />
       </file>
       <file name="$USER_HOME$/PycharmProjects/cloudformation/TroposphereCFTemplateExample.py" timestamp="1557504757324">
         <mark key="[" line="0" column="0" />
@@ -46,7 +48,9 @@
       <file name="$APPLICATION_CONFIG_DIR$/scratches/scratch.json" timestamp="1557113299067">
         <mark key="[" line="0" column="0" />
       </file>
-      <file name="$USER_HOME$/Downloads/!.AWS picks/SysOps/DevOpsPro-master/lamp-stack-1478287817_1530269327 (3).json" timestamp="1557539446429" />
+      <file name="$USER_HOME$/Downloads/!.AWS picks/SysOps/DevOpsPro-master/lamp-stack-1478287817_1530269327 (3).json" timestamp="1557541792847">
+        <mark key="[" line="444" column="0" />
+      </file>
       <file name="$USER_HOME$/Documents/Python/HelloWorld/Cf_Sg_template.json" timestamp="1557115282543">
         <mark key="[" line="5" column="36" />
       </file>
@@ -54,9 +58,9 @@
         <mark key="[" line="2" column="65" />
       </file>
       <file name="$USER_HOME$/PycharmProjects/cloudformation/tr_template_generator.py" timestamp="1557535986028">
-        <mark key="[" line="400" column="0" />
-        <mark key="]" line="400" column="0" />
-        <mark key="." line="400" column="0" />
+        <mark key="[" line="402" column="0" />
+        <mark key="]" line="402" column="0" />
+        <mark key="." line="402" column="0" />
       </file>
       <file name="$USER_HOME$/Downloads/!.AWS picks/cloudformation-master/MyVPC-Network.template" timestamp="1557372672638">
         <mark key="[" line="279" column="5" />
@@ -88,7 +92,7 @@
         <text encoding="base64">CmZyb20gdHJvcG9zcGhlcmUudGVtcGxhdGVfZ2VuZXJhdG9yIGltcG9ydCBUZW1wbGF0ZUdlbmVyYXRvcgppbXBvcnQganNvbgp3aXRoIG9wZW4oIkNsb3VkRm9ybWF0aW9uLVZQQy55YW1sIikgYXMgZjoKICAgIGpzb25fdGVtcGxhdGUgPSBqc29uLmxvYWQoZikKdGVtcGxhdGUgPSBUZW1wbGF0ZUdlbmVyYXRvcihqc29uX3RlbXBsYXRlKQp0ZW1wbGF0ZS50b19qc29uKCk=</text>
       </register>
       <register name="&quot;" type="4">
-        <text encoding="base64">CmZyb20gdHJvcG9zcGhlcmUudGVtcGxhdGVfZ2VuZXJhdG9yIGltcG9ydCBUZW1wbGF0ZUdlbmVyYXRvcgppbXBvcnQganNvbgp3aXRoIG9wZW4oIkNsb3VkRm9ybWF0aW9uLVZQQy55YW1sIikgYXMgZjoKICAgIGpzb25fdGVtcGxhdGUgPSBqc29uLmxvYWQoZikKdGVtcGxhdGUgPSBUZW1wbGF0ZUdlbmVyYXRvcihqc29uX3RlbXBsYXRlKQp0ZW1wbGF0ZS50b19qc29uKCk=</text>
+        <text />
       </register>
       <register name="2" type="2">
         <text encoding="base64">ICAgICJQdWJsaWNTdWJuZXQiIDogewo=</text>
@@ -111,7 +115,7 @@
         <text>q</text>
       </register>
       <register name="-" type="4">
-        <text>Default Changelist</text>
+        <text />
       </register>
       <register name="/" type="4">
         <text encoding="base64">XDxWUENCbG9jazJcPg==</text>
