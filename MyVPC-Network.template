@@ -93,7 +93,7 @@
       "Type": "String",
       "AllowedValues" : [ "true", "false" ],
       "ConstraintDescription" : "must be either true or false."
-    },
+    }
   },
   "Resources": {
     "CFVPC": {
@@ -490,6 +490,7 @@
         }
       }
     },
+   
     "ApplicationLoadBalancer": {
       "Type" : "AWS::ElasticLoadBalancingV2::LoadBalancer",
       "Properties" : {
