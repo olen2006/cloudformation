@@ -6,7 +6,7 @@
       <file name="/start_script.py" timestamp="1557433535474">
         <mark key="[" line="0" column="0" />
       </file>
-      <file name="/Dummy.txt" timestamp="1558461448019">
+      <file name="/Dummy.txt" timestamp="1558476078283">
         <mark key="[" line="0" column="0" />
         <mark key="]" line="0" column="0" />
         <mark key="." line="0" column="0" />
@@ -31,11 +31,7 @@
       <file name="$USER_HOME$/Downloads/!.AWS picks/cloudformation-master/LAMPtemplateMultiAZ.yaml" timestamp="1557265685322">
         <mark key="[" line="0" column="0" />
       </file>
-      <file name="$USER_HOME$/PycharmProjects/cloudformation/MyVPC-Network.template" timestamp="1558474335903">
-        <mark key="[" line="1024" column="24" />
-        <mark key="]" line="1198" column="18" />
-        <mark key="." line="1192" column="2" />
-      </file>
+      <file name="$USER_HOME$/PycharmProjects/cloudformation/MyVPC-Network.template" timestamp="1558476069144" />
       <file name="$USER_HOME$/PycharmProjects/cloudformation/TroposphereCFTemplateExample.py" timestamp="1557504757324">
         <mark key="[" line="0" column="0" />
       </file>
