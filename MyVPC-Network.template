@@ -189,7 +189,7 @@
     "WebServerGroup": {
       "Type" : "AWS::AutoScaling::AutoScalingGroup",
       "Properties" : {
-        "VPCZoneIdentifier" : {"Ref" : "DMZ1public","Ref" : "DMZ2public"},
+        "VPCZoneIdentifier" : [{"Ref" : "DMZ1public"},{"Ref" : "DMZ2public"}],
         "LaunchConfigurationName" : { "Ref" : "LaunchConfig" },
         "MinSize" : "1",
         "MaxSize" : "5",
