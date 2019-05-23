@@ -1140,10 +1140,18 @@
         }
       }
     },
+    "DBSubnetGroup": {
+      "Type": "AWS::RDS::DBSubnetGroup",
+      "Properties": {
+        "DBSubnetGroupDescription": "Subnet for DB",
+        "DBSubnetGroupName": "db-subnet",
+        "SubnetIds":[ { "Ref" : "DBLayer1private" },{ "Ref" : "DBLayer2private" }]
+        }
+        },
     "DBInstance": {
       "Type": "AWS::RDS::DBInstance",
       "Properties": {
-        "DBSubnetGroupName": {"Ref": "DBLayer1private"},
+        "DBSubnetGroupName": {"Ref": "DBSubnetGroup"},
         "DBName"            : { "Ref" : "DBName" },
         "Engine"            : "MySQL",
         "MultiAZ"           : { "Ref": "MultiAZDatabase" },
