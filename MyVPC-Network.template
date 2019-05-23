@@ -494,7 +494,7 @@
     "ApplicationLoadBalancer": {
       "Type" : "AWS::ElasticLoadBalancingV2::LoadBalancer",
       "Properties" : {
-        "Subnets" : {"Ref":"DMZ1public", "Ref":"DMZ2public"}
+        "Subnets" : {"Fn::GetAtt":["DMZ1public",""], "Ref":"DMZ2public"}
       }
     },
     "ALBListener": {
