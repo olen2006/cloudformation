@@ -189,7 +189,7 @@
     "WebServerGroup": {
       "Type" : "AWS::AutoScaling::AutoScalingGroup",
       "Properties" : {
-        "VPCZoneIdentifier" : [{"Ref" : "DMZ1public"},{"Ref" : "DMZ2public"}],
+        "VPCZoneIdentifier" : [{"Ref" : "AppLayer1private"},{"Ref" : "AppLayer2private"}],
         "LaunchConfigurationName" : { "Ref" : "LaunchConfig" },
         "MinSize" : "1",
         "MaxSize" : "5",
@@ -1144,7 +1144,6 @@
       "Type": "AWS::RDS::DBSubnetGroup",
       "Properties": {
         "DBSubnetGroupDescription": "Subnet for DB",
-        "DBSubnetGroupName": "db-subnet",
         "SubnetIds":[ { "Ref" : "DBLayer1private" },{ "Ref" : "DBLayer2private" }]
         }
         },
