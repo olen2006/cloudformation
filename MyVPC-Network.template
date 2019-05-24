@@ -169,8 +169,14 @@
             "ToPort": "80",
             "CidrIp": "0.0.0.0/0"
           },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "443",
+            "ToPort": "443",
+            "CidrIp": "0.0.0.0/0"
+          },
           { "IpProtocol": "tcp",
-            "FromPort": 22",
+            "FromPort": "22",
             "ToPort": "22",
             "SourceSecurityGroupId": {"Ref": "BastionSG"}
           }
@@ -618,7 +624,7 @@
             "IpProtocol": "tcp",
             "FromPort": "443",
             "ToPort": "443",
-            "CidrIp": "0.0.0.0/0"
+            "SourceSecurityGroupId": {"Ref": "ALBSG"}
           },
           {
             "IpProtocol": "tcp",
@@ -630,17 +636,7 @@
             "IpProtocol" : "tcp",
             "FromPort" : "80",
             "ToPort" : "80",
-            "SourceSecurityGroupId" : {
-              "Fn::Select" : [
-                0,
-                {
-                  "Fn::GetAtt" : [
-                    "ApplicationLoadBalancer",
-                    "SecurityGroups"
-                  ]
-                }
-              ]
-            }
+            "SourceSecurityGroupId": {"Ref": "ALBSG"}
           }
         ]
       }
@@ -791,12 +787,7 @@
         "Protocol": "6",
         "RuleAction": "allow",
         "Egress": "true",
-        "CidrBlock": {
-          "Fn::GetAtt": [
-            "CFVPC",
-            "CidrBlock"
-          ]
-        },
+        "CidrBlock": "0.0.0.0/0",
         "PortRange": {
           "From": "1024",
           "To": "65535"
