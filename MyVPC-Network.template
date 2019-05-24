@@ -156,6 +156,28 @@
         "Subnets" : [{"Ref": "DMZ1public"},{"Ref": "DMZ2public"}]
       }
     },
+    "ALBSG" : {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "LoadBalancer Security Group",
+        "GroupName": "ALBSG",
+        "VpcId": {"Ref": "CFVPC"},
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "80",
+            "ToPort": "80",
+            "CidrIp": "0.0.0.0/0"
+          },
+          { "IpProtocol": "tcp",
+            "FromPort": 22",
+            "ToPort": "22",
+            "SourceSecurityGroupId": {"Ref": "BastionSG"}
+          }
+        ]
+      }
+      
+    },
     "ALBListener": {
       "Type" : "AWS::ElasticLoadBalancingV2::Listener",
       "Properties" : {
@@ -198,7 +220,7 @@
       },
       "CreationPolicy" : {
         "ResourceSignal" : {
-          "Timeout" : "PT15M"
+          "Timeout" : "PT18M"
         }
       },
       "UpdatePolicy": {
@@ -602,7 +624,7 @@
             "IpProtocol": "tcp",
             "FromPort": "22",
             "ToPort": "22",
-            "CidrIp": "0.0.0.0/0"
+            "SourceSecurityGroupId": {"Ref": "BastionSG"} 
           },
           {            
             "IpProtocol" : "tcp",
