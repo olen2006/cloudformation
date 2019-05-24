@@ -226,7 +226,7 @@
       },
       "CreationPolicy" : {
         "ResourceSignal" : {
-          "Timeout" : "PT18M"
+          "Timeout" : "PT15M"
         }
       },
       "UpdatePolicy": {
