@@ -972,7 +972,7 @@
       "Type": "AWS::EC2::NetworkAclEntry",
       "Properties": {
         "NetworkAclId": {
-          "Ref": "DMZNetworkAcl"
+          "Ref": "AppNetworkAcl"
         },
         "RuleNumber": "130",
         "Protocol": "6",
