@@ -6,7 +6,7 @@
       <file name="/start_script.py" timestamp="1557433535474">
         <mark key="[" line="0" column="0" />
       </file>
-      <file name="/Dummy.txt" timestamp="1558979202030">
+      <file name="/Dummy.txt" timestamp="1558981429074">
         <mark key="[" line="0" column="0" />
         <mark key="]" line="0" column="0" />
         <mark key="." line="0" column="0" />
@@ -34,8 +34,8 @@
       <file name="$USER_HOME$/PycharmProjects/cloudformation/TroposphereCFTemplateExample.py" timestamp="1557504757324">
         <mark key="[" line="0" column="0" />
       </file>
-      <file name="$USER_HOME$/PycharmProjects/cloudformation/MyVPC-Network.template" timestamp="1558980129626">
-        <mark key="[" line="1207" column="31" />
+      <file name="$USER_HOME$/PycharmProjects/cloudformation/MyVPC-Network.template" timestamp="1558981359549">
+        <mark key="[" line="219" column="51" />
         <mark key="]" line="310" column="25" />
         <mark key="^" line="310" column="25" />
         <mark key="." line="310" column="25" />
