@@ -153,7 +153,8 @@
     "ApplicationLoadBalancer": {
       "Type" : "AWS::ElasticLoadBalancingV2::LoadBalancer",
       "Properties" : {
-        "Subnets" : [{"Ref": "DMZ1public"},{"Ref": "DMZ2public"}]
+        "Subnets" : [{"Ref": "DMZ1public"},{"Ref": "DMZ2public"}],
+        "SecurityGroups" : [{"Ref": "ALBSG"}]
       }
     },
     "ALBSG" : {
@@ -217,7 +218,7 @@
     "WebServerGroup": {
       "Type" : "AWS::AutoScaling::AutoScalingGroup",
       "Properties" : {
-        "VPCZoneIdentifier" : [{"Ref" : "DMZ1public"},{"Ref" : "DMZ2public"}],
+        "VPCZoneIdentifier" : [{"Ref" : "AppLayer1private"},{"Ref" : "AppLayer2private"}],
         "LaunchConfigurationName" : { "Ref" : "LaunchConfig" },
         "MinSize" : "1",
         "MaxSize" : "5",
@@ -331,6 +332,7 @@
         "UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
           "#!/bin/bash -xe\n",
           "yum update -y aws-cfn-bootstrap\n",
+          "yum install -y httpd24 php70 mysql56-server php70-mysqlnd git",
 
           "/opt/aws/bin/cfn-init -v ",
           "         --stack ", { "Ref" : "AWS::StackName" },
@@ -873,6 +875,29 @@
         }
       }
     },
+    "OutBoundSSHAppNetworkAclEntry": {
+      "Type": "AWS::EC2::NetworkAclEntry",
+      "Properties": {
+        "NetworkAclId": {
+          "Ref": "AppNetworkAcl"
+        },
+        "RuleNumber": "140",
+        "Protocol": "6",
+        "RuleAction": "allow",
+        "Egress": "false",
+        "CidrBlock": {
+          "Fn::GetAtt": [
+            "CFVPC",
+            "CidrBlock"
+          ]
+        },
+        "PortRange": {
+          "From": "22",
+          "To": "22"
+        }
+      }
+    },
+    
     "InboundHTTPAppNetworkAclEntry": {
       "Type": "AWS::EC2::NetworkAclEntry",
       "Properties": {
@@ -1205,11 +1230,11 @@
 "HVMG2": "ami-0aeb704d503081ea6"
 },
 "us-west-2": {
-"HVM64": "ami-01e24be29428c15b2",
-"HVMG2": "ami-0fe84a5b4563d8f27"
+"HVM64": "ami-07a0c6e669965bb7c",
+"HVMG2": "NOT_SUPPORTED"
 },
 "us-east-2": {
-"HVM64": "ami-0cd3dfa4e37921605",
+"HVM64": "ami-04768381bf606e2b3",
 "HVMG2": "NOT_SUPPORTED"
 }
 }
