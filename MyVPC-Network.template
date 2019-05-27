@@ -1205,11 +1205,11 @@
 "HVMG2": "ami-0aeb704d503081ea6"
 },
 "us-west-2": {
-"HVM64": "ami-01e24be29428c15b2",
-"HVMG2": "ami-0fe84a5b4563d8f27"
+"HVM64": "ami-07a0c6e669965bb7c",
+"HVMG2": "NOT_SUPPORTED"
 },
 "us-east-2": {
-"HVM64": "ami-0cd3dfa4e37921605",
+"HVM64": "ami-04768381bf606e2b3",
 "HVMG2": "NOT_SUPPORTED"
 }
 }
