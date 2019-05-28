@@ -6,17 +6,6 @@
       <file name="/start_script.py" timestamp="1557433535474">
         <mark key="[" line="0" column="0" />
       </file>
-      <file name="/Dummy.txt" timestamp="1558994594749">
-        <mark key="[" line="0" column="0" />
-        <mark key="]" line="0" column="0" />
-        <mark key="." line="0" column="0" />
-      </file>
-      <file name="$USER_HOME$/Downloads/!.AWS picks/cloudformation-master/LAMPTemplateMultiAZ.template" timestamp="1557352608355">
-        <mark key="[" line="0" column="0" />
-      </file>
-      <file name="$USER_HOME$/Downloads/!.AWS picks/CloudFormation-VPC_modified.yaml" timestamp="1556747895029">
-        <mark key="[" line="74" column="0" />
-      </file>
       <file name="/Python Console" timestamp="1557505983452">
         <mark key="[" line="0" column="0" />
       </file>
@@ -34,29 +23,17 @@
       <file name="$USER_HOME$/PycharmProjects/cloudformation/TroposphereCFTemplateExample.py" timestamp="1557504757324">
         <mark key="[" line="0" column="0" />
       </file>
-      <file name="$USER_HOME$/PycharmProjects/cloudformation/MyVPC-Network.template" timestamp="1558993914602">
-        <mark key="[" line="219" column="51" />
-        <mark key="]" line="310" column="25" />
-        <mark key="^" line="310" column="25" />
-        <mark key="." line="310" column="25" />
-      </file>
-      <file name="$USER_HOME$/.aws/credentials" timestamp="1557417658627">
-        <mark key="[" line="1" column="31" />
-      </file>
       <file name="D:/downloads/AWS_SysOps_associate/CF_WordPress_Blog.yml" timestamp="1557193177828">
         <mark key="[" line="6" column="0" />
       </file>
-      <file name="$APPLICATION_CONFIG_DIR$/scratches/scratch.json" timestamp="1557113299067">
-        <mark key="[" line="0" column="0" />
+      <file name="$USER_HOME$/PycharmProjects/cloudformation/ec2.template" timestamp="1559062037528">
+        <mark key="[" line="5" column="16" />
       </file>
       <file name="$USER_HOME$/Downloads/!.AWS picks/SysOps/DevOpsPro-master/lamp-stack-1478287817_1530269327 (3).json" timestamp="1557541792847">
         <mark key="[" line="444" column="0" />
       </file>
       <file name="$USER_HOME$/Documents/Python/HelloWorld/Cf_Sg_template.json" timestamp="1557115282543">
         <mark key="[" line="5" column="36" />
-      </file>
-      <file name="$USER_HOME$/Documents/Python/cloudformation/MyVPC-Network.template" timestamp="1557467759931">
-        <mark key="[" line="2" column="65" />
       </file>
       <file name="$USER_HOME$/PycharmProjects/cloudformation/tr_template_generator.py" timestamp="1557535986028">
         <mark key="[" line="402" column="0" />
@@ -68,20 +45,46 @@
         <mark key="]" line="279" column="5" />
         <mark key="." line="279" column="5" />
       </file>
-      <file name="$USER_HOME$/.aws/config" timestamp="1557466631334">
-        <mark key="[" line="26" column="37" />
-      </file>
       <file name="D:/downloads/Amazon AWS Certified Solutions Architect Associate Exam Dump Test PDF VCE (2018)-20190214T044510Z-001/CloudFormationFile/MyVPC-Network.template" timestamp="1557201627684">
         <mark key="[" line="5" column="16" />
+      </file>
+      <file name="$USER_HOME$/Documents/Python/HelloWorld/CF_Tample.template" timestamp="1557115407454">
+        <mark key="[" line="4" column="2" />
+      </file>
+      <file name="/Dummy.txt" timestamp="1558994594749">
+        <mark key="[" line="0" column="0" />
+        <mark key="]" line="0" column="0" />
+        <mark key="." line="0" column="0" />
+      </file>
+      <file name="$USER_HOME$/Downloads/!.AWS picks/cloudformation-master/LAMPTemplateMultiAZ.template" timestamp="1557352608355">
+        <mark key="[" line="0" column="0" />
+      </file>
+      <file name="$USER_HOME$/Downloads/!.AWS picks/CloudFormation-VPC_modified.yaml" timestamp="1556747895029">
+        <mark key="[" line="74" column="0" />
+      </file>
+      <file name="$USER_HOME$/PycharmProjects/cloudformation/MyVPC-Network.template" timestamp="1558993914602">
+        <mark key="[" line="219" column="51" />
+        <mark key="]" line="310" column="25" />
+        <mark key="^" line="310" column="25" />
+        <mark key="." line="310" column="25" />
+      </file>
+      <file name="$USER_HOME$/.aws/credentials" timestamp="1557417658627">
+        <mark key="[" line="1" column="31" />
+      </file>
+      <file name="$APPLICATION_CONFIG_DIR$/scratches/scratch.json" timestamp="1557113299067">
+        <mark key="[" line="0" column="0" />
+      </file>
+      <file name="$USER_HOME$/Documents/Python/cloudformation/MyVPC-Network.template" timestamp="1557467759931">
+        <mark key="[" line="2" column="65" />
+      </file>
+      <file name="$USER_HOME$/.aws/config" timestamp="1557466631334">
+        <mark key="[" line="26" column="37" />
       </file>
       <file name="$USER_HOME$/PycharmProjects/cloudformation/generateTemplate.py" timestamp="1557535929236">
         <mark key="[" line="2" column="40" />
       </file>
       <file name="$USER_HOME$/Documents/Python/HelloWorld/HelloWorld.py" timestamp="1554059595402">
         <mark key="[" line="0" column="0" />
-      </file>
-      <file name="$USER_HOME$/Documents/Python/HelloWorld/CF_Tample.template" timestamp="1557115407454">
-        <mark key="[" line="4" column="2" />
       </file>
       <file name="$USER_HOME$/PycharmProjects/Cformation/CFormation-sample.template" timestamp="1557150740278">
         <mark key="[" line="33" column="16" />
