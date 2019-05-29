@@ -332,7 +332,7 @@
         "UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
           "#!/bin/bash -xe\n",
           "yum update -y aws-cfn-bootstrap\n",
-          "yum install -y httpd24 php70 mysql56-server php70-mysqlnd git",
+          "yum install -y httpd24 php70 mysql56-server php70-mysqlnd git\n",
 
           "/opt/aws/bin/cfn-init -v ",
           "         --stack ", { "Ref" : "AWS::StackName" },
@@ -884,7 +884,7 @@
         "RuleNumber": "140",
         "Protocol": "6",
         "RuleAction": "allow",
-        "Egress": "false",
+        "Egress": "true",
         "CidrBlock": {
           "Fn::GetAtt": [
             "CFVPC",
