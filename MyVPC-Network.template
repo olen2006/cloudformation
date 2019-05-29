@@ -881,7 +881,7 @@
         "NetworkAclId": {
           "Ref": "AppNetworkAcl"
         },
-        "RuleNumber": "140",
+        "RuleNumber": "110",
         "Protocol": "6",
         "RuleAction": "allow",
         "Egress": "true",
@@ -965,7 +965,7 @@
         "NetworkAclId": {
           "Ref": "AppNetworkAcl"
         },
-        "RuleNumber": "110",
+        "RuleNumber": "120",
         "Protocol": "6",
         "RuleAction": "allow",
         "Egress": "true",
@@ -982,7 +982,7 @@
         "NetworkAclId": {
           "Ref": "AppNetworkAcl"
         },
-        "RuleNumber": "120",
+        "RuleNumber": "130",
         "Protocol": "6",
         "RuleAction": "allow",
         "Egress": "true",
@@ -999,7 +999,7 @@
         "NetworkAclId": {
           "Ref": "AppNetworkAcl"
         },
-        "RuleNumber": "130",
+        "RuleNumber": "140",
         "Protocol": "6",
         "RuleAction": "allow",
         "Egress": "true",
