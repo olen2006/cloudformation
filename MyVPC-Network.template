@@ -332,14 +332,7 @@
         "UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
           "#!/bin/bash -xe\n",
           "yum update -y aws-cfn-bootstrap\n",
-          "isl2=`uname -a| grep amzn2`\n",
-          "if [ "$isl2" != "" ] ; then\n",
-          "amazon-linux-extras install -y lamp-mariadb10.2-php7.2 php7.2\n",
-          "yum install -y httpd mariadb-server git\n",
-          "else\n",
-          "yum install -y httpd24 php70 mysql56-server php70-mysqlnd git\n"",
-          "fi\n",
-          "echo '<?php phpinfo(); ?>' > /var/www/html/phpinfo.php\n",
+
           
 
           "/opt/aws/bin/cfn-init -v ",
@@ -618,6 +611,7 @@
               "Ref": "SSHLocation"
             }
           }
+
         ]
       }
     },
@@ -753,13 +747,31 @@
         }
       }
     },
-    "OutBoundHTTPDMZNetworkAclEntry": {
+    "OutBoundSSHDMZNetworkAclEntry": {
       "Type": "AWS::EC2::NetworkAclEntry",
       "Properties": {
         "NetworkAclId": {
           "Ref": "DMZNetworkAcl"
         },
         "RuleNumber": "110",
+        "Protocol": "6",
+        "RuleAction": "allow",
+        "Egress": "true",
+        "CidrBlock": {"Fn::GetAtt" :  ["CFVPC","CidrBlock"]},
+        "PortRange": {
+          "From": "22",
+          "To": "22"
+        }
+      }
+      
+    },
+    "OutBoundHTTPDMZNetworkAclEntry": {
+      "Type": "AWS::EC2::NetworkAclEntry",
+      "Properties": {
+        "NetworkAclId": {
+          "Ref": "DMZNetworkAcl"
+        },
+        "RuleNumber": "120",
         "Protocol": "6",
         "RuleAction": "allow",
         "Egress": "true",
@@ -776,7 +788,7 @@
         "NetworkAclId": {
           "Ref": "DMZNetworkAcl"
         },
-        "RuleNumber": "120",
+        "RuleNumber": "130",
         "Protocol": "6",
         "RuleAction": "allow",
         "Egress": "true",
@@ -793,7 +805,7 @@
         "NetworkAclId": {
           "Ref": "DMZNetworkAcl"
         },
-        "RuleNumber": "130",
+        "RuleNumber": "140",
         "Protocol": "6",
         "RuleAction": "allow",
         "Egress": "true",
