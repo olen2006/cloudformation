@@ -339,6 +339,8 @@
           "else\n",
           "yum install -y httpd24 php70 mysql56-server php70-mysqlnd git\n"",
           "fi\n",
+          "echo '<?php phpinfo(); ?>' > /var/www/html/phpinfo.php\n",
+          
 
           "/opt/aws/bin/cfn-init -v ",
           "         --stack ", { "Ref" : "AWS::StackName" },
