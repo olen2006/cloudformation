@@ -33,13 +33,7 @@
  
           "Value":{  
  
-             "Fn::GetAtt":[  
- 
-                "webbucket",
- 
-                "WebsiteURL"
- 
-             ]
+             "Fn::GetAtt":["webbucket","WebsiteURL"]
  
           },
  
@@ -61,13 +55,7 @@
  
                    {  
  
-                      "Fn::GetAtt":[  
- 
-                         "webbucket",
- 
-                         "DomainName"
- 
-                      ]
+                      "Fn::GetAtt":["webbucket","DomainName"]
  
                    }
  
