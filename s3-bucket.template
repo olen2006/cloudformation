@@ -1,0 +1,85 @@
+{  
+
+    "Resources":{  
+ 
+       "webbucket":{  
+ 
+          "Type":"AWS::S3::Bucket",
+ 
+          "Properties":{  
+ 
+             "AccessControl":"PublicRead",
+             "BucketName" :"website-2310202",
+ 
+             "WebsiteConfiguration":{  
+ 
+                "IndexDocument":"index.html",
+ 
+                "ErrorDocument":"error.html"
+ 
+             }
+ 
+          },
+ 
+          "DeletionPolicy":"Retain"
+ 
+       }
+ 
+    },
+ 
+    "Outputs":{  
+ 
+       "WebsiteURL":{  
+ 
+          "Value":{  
+ 
+             "Fn::GetAtt":[  
+ 
+                "webbucket",
+ 
+                "WebsiteURL"
+ 
+             ]
+ 
+          },
+ 
+          "Description":"URL for website hosted on S3"
+ 
+       },
+ 
+       "S3BucketSecureURL":{  
+ 
+          "Value":{  
+ 
+             "Fn::Join":[  
+ 
+                "",
+ 
+                [  
+ 
+                   "https://",
+ 
+                   {  
+ 
+                      "Fn::GetAtt":[  
+ 
+                         "webbucket",
+ 
+                         "DomainName"
+ 
+                      ]
+ 
+                   }
+ 
+                ]
+ 
+             ]
+ 
+          },
+ 
+          "Description":"Name of S3 bucket to hold website content"
+ 
+       }
+ 
+    }
+ }
