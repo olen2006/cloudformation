@@ -9,7 +9,6 @@
           "Properties":{  
  
              "AccessControl":"PublicRead",
-             "BucketName" :"website-2310202",
  
              "WebsiteConfiguration":{  
  
