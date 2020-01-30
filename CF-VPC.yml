@@ -65,7 +65,7 @@ PrivateRT:
       - Key: resource
         Value: CloudFormation
 
-#======= Second PrivateRT for MultiAZ ??? ========
+#======= Second PrivateRT for MultiAZ ========
 ##################################
 ##################################
 ##################################
@@ -79,7 +79,7 @@ RoutesForPrivateRT:
     DestinationCidrBlock: 0.0.0.0/0
     NatGatewayId: !Ref NATGateway
 
-#======= Second Private Route for MultiAZ ??? ========
+#======= Second Private Route for MultiAZ ========
 ##################################
 ##################################
 ##################################
