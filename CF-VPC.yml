@@ -1,23 +1,16 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: Deploy a VPC
-Metadata: 
-
-Parameters: 
-
-Mappings: 
-
-Conditions: 
 
 Resources:
   #============= VPC ==================
-  CF-VPC:
+  CFVPC:
     Type: AWS::EC2::VPC
     Properties:
       CidrBlock: 10.99.0.0/16 #parameters implementation !Ref VpcBlock
       EnableDnsSupport: true    #Test it
       #EnableDnsHostnames: true      ???
       Tags:
-        - Key: resource
+        - Key: Name
           Value: CloudFormation
 
 #========IGW,PublicRT,RoutesForPublicRT,PrivateRT,RoutesForPrivateRT ==================
@@ -34,36 +27,43 @@ Resources:
   AttachIGW:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
-      VpcId: !Ref CF-VPC
+      VpcId: !Ref CFVPC
       InternetGatewayId: !Ref IGW
 
   #===== Public Route Tables =========
-PublicRT:
-  Type: AWS::EC2::RouteTable
-  Properties:
-    VpcId: !Ref CF-VPC
-    Tags:
-      - Key: resource
-        Value: CloudFormation
-  
+  PublicRT:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref CFVPC
+      Tags:
+        - Key: resource
+          Value: CloudFormation
 
   #======== Routes For PublicRT ==========
-RoutesForPublicRT:
-  Type: AWS::EC2::Route
-  DependsOn: AttachIGW #!
-  Properties:
-    RouteTableId: !Ref PublicRT
-    DestinationCidrBlock: 0.0.0.0/0
-    GatewayId: !Ref IGW
+  RoutesForPublicRT:
+    Type: AWS::EC2::Route
+    DependsOn: AttachIGW #!
+    Properties:
+      RouteTableId: !Ref PublicRT
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref IGW
 
   #===== Private Route Tables =========
-PrivateRT:
-  Type: AWS::EC2::RouteTable
-  Properties:
-    VpcId: !Ref CF-VPC
-    Tags:
-      - Key: resource
-        Value: CloudFormation
+  PrivateRT1:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref CFVPC
+      Tags:
+        - Key: resource
+          Value: CloudFormation
+  
+  PrivateRT2:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref CFVPC
+      Tags:
+        - Key: Name
+          Value: CloudFormation
 
 #======= Second PrivateRT for MultiAZ ========
 ##################################
@@ -71,96 +71,98 @@ PrivateRT:
 ##################################
 
   #======== Routes For PrivateRT ==========
-RoutesForPrivateRT:
-  Type: AWS::EC2::Route
-  DependsOn: NATGateway #!NATGatewayA
-  Properties:
-    RouteTableId: !Ref PrivateRT
-    DestinationCidrBlock: 0.0.0.0/0
-    NatGatewayId: !Ref NATGateway
+  RoutesForPrivateRTA:
+    Type: AWS::EC2::Route
+    DependsOn: NATGateway1 #!NATGatewayA
+    Properties:
+      RouteTableId: !Ref PrivateRT1
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NATGateway1
+  
+  RoutesForPrivateRTB:
+    Type: AWS::EC2::Route
+    DependsOn: NATGateway2 #!NATGatewayA
+    Properties:
+      RouteTableId: !Ref PrivateRT2
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NATGateway2
 
-#======= Second Private Route for MultiAZ ========
-##################################
-##################################
-##################################
-
-#====== Associate Public Route for Public Subnets ====
-DMZ1publicRTAssociation:
-  Type: AWS::EC2::SubnetRouteTableAssociation
-  Properties:
-    SubnetId: !Ref DMZ1public
-    RouteTableId: !Ref PublicRT
-
-DMZ2publicRTAssociation:
-  Type: AWS::EC2::SubnetRouteTableAssociation
-  Properties:
-    SubnetId: !Ref DMZ2public
-    RouteTableId: !Ref PublicRT
-
-#====== Associate Private Route for Private Subnets ====
-AppLayer1privateRTAssociation:
-  Type: AWS::EC2::SubnetRouteTableAssociation
-  Properties:
-    SubnetId: !Ref AppLayer1private
-    RouteTableId: !Ref PrivateRT
-
-AppLayer2privateRTAssociation:
-  Type: AWS::EC2::SubnetRouteTableAssociation
-  Properties:
-    SubnetId: !Ref AppLayer2private
-    RouteTableId: !Ref PrivateRT
-
-#==== Route Table and Route Association for Internal only - Databases    
-############################################
-#TODO: DB association
-############################################
-
-#======= ElasticIP for NAT Gateways ======
-NATGWEIP1:
-  Type: AWS::EC2::EIP
-  DependsOn: AttachIGW
-  Properties:
-  Domain: !Ref CF-VPC
-
-NATGWEIP2:
-  Type: AWS::EC2::EIP
-  DependsOn: AttachIGW
-  Properties:
-  Domain: !Ref CF-VPC
-
-#===== NATGWs =========
-  NATGatewayA:
-    DependsOn: AttachIGW
-    Type: AWS::EC2::NatGateway
+  #====== Associate Public Route for Public Subnets ====
+  DMZ1publicRTAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref DMZ1public
-      AllocationId:  !GetAtt NATGWEIP1.AllocationId
+      RouteTableId: !Ref PublicRT
+
+  DMZ2publicRTAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref DMZ2public
+      RouteTableId: !Ref PublicRT
+
+  #====== Associate Private Route for Private Subnets ====
+  AppLayer1privateRTAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref AppLayer1private
+      RouteTableId: !Ref PrivateRT1
+
+  AppLayer2privateRTAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref AppLayer2private
+      RouteTableId: !Ref PrivateRT2
+
+  #==== Route Table and Route Association for Internal only - Databases    
+  ############################################
+  #TODO: DB association
+  ############################################
+
+  #======= ElasticIP for NAT Gateways ======
+  NATGWEIP1:
+    Type: AWS::EC2::EIP
+    DependsOn: AttachIGW
+    Properties:
+      Domain: !Ref CFVPC
+
+  NATGWEIP2:
+    Type: AWS::EC2::EIP
+    DependsOn: AttachIGW
+    Properties:
+      Domain: !Ref CFVPC
+
+  #===== NATGWs =========
+  NATGateway1:
+    Type: AWS::EC2::NatGateway
+    DependsOn: AttachIGW
+    Properties:
+      SubnetId: !Ref DMZ1public
+      AllocationId: !GetAtt NATGWEIP1.AllocationId
       Tags:
         - Key: Name
-          Value: NATGateway-A
+          Value: NATGateway1
         - Key: resource
           Value: CloudFormation
 
-  NATGatewayB:
-    DependsOn: AttachIGW
+  NATGateway2:
     Type: AWS::EC2::NatGateway
+    DependsOn: AttachIGW
     Properties:
       SubnetId: !Ref DMZ2public
-      AllocationId:  !GetAtt NATGWEIP2.AllocationId
+      AllocationId: !GetAtt NATGWEIP2.AllocationId
       Tags:
         - Key: Name
-          Value: NATGateway-B
+          Value: NATGateway2
         - Key: resource
           Value: CloudFormation
-        
 #============= Subnets: DMZ1public,DMZ2public,AppLayer1private,AppLayer2private,DBLayer1private,DBLayer2private ==================
   DMZ1public:
     Type: AWS::EC2::Subnet
     Properties:
-      AvailabilityZone: !Select [0,"Fn:GetAZs":{Ref:"AWS::Region"}]
-      VpcId: !Ref CF-VPC
+      AvailabilityZone: !Select [0,"Fn::GetAZs":{Ref:  "AWS::Region"}]
+      VpcId: !Ref CFVPC
       CidrBlock: 10.99.1.0/24  #TODO: transfer in parameters
-      MapPublicIpOnLounch: true
+      MapPublicIpOnLaunch: true
       Tags:
         - Key: resource
           Value: CloudFormation #TODO:  NAME and !Join [ "", [ !Ref Environment, "-Public-A" ] ]
@@ -168,10 +170,10 @@ NATGWEIP2:
   DMZ2public:
     Type: AWS::EC2::Subnet
     Properties:
-      AvailabilityZone: !Select [1,"Fn:GetAZs":{Ref:"AWS::Region"}]
-      VpcId: !Ref CF-VPC
+      AvailabilityZone: !Select [1,"Fn::GetAZs":{Ref:  "AWS::Region"}]
+      VpcId: !Ref CFVPC
       CidrBlock: 10.99.2.0/24 #TODO: transfer in parameters
-      MapPublicIpOnLounch: true
+      MapPublicIpOnLaunch: true
       Tags:
         - Key: resource
           Value: CloudFormation #TODO:!
@@ -179,18 +181,20 @@ NATGWEIP2:
   AppLayer1private:
     Type: AWS::EC2::Subnet
     Properties:
-      AvailabilityZone: !Select [0,"Fn:GetAZs":{Ref:"AWS::Region"}]
-      VpcId: !Ref CF-VPC
+      AvailabilityZone: !Select [0,"Fn::GetAZs":{Ref: "AWS::Region"}]
+      VpcId: !Ref CFVPC
       CidrBlock: 10.99.11.0/24 #TODO: transfer in parameters
       Tags:
         - Key: resource
           Value: CloudFormation #TODO:!
+        - Key: Name
+          Value: AppLayer1private
 
   AppLayer2private:
     Type: AWS::EC2::Subnet
     Properties:
-      AvailabilityZone: !Select [2,"Fn:GetAZs":{Ref:"AWS::Region"}]
-      VpcId: !Ref CF-VPC
+      AvailabilityZone: !Select [2,"Fn::GetAZs":{Ref: "AWS::Region"}]
+      VpcId: !Ref CFVPC
       CidrBlock: 10.99.12.0/24 #transfer in parameters
       Tags:
         - Key: resource
@@ -199,8 +203,8 @@ NATGWEIP2:
   DBLayer1private:
     Type: AWS::EC2::Subnet
     Properties:
-      AvailabilityZone: !Select [0,"Fn:GetAZs":{Ref:"AWS::Region"}]
-      VpcId: !Ref CF-VPC
+      AvailabilityZone: !Select [0,"Fn::GetAZs":{Ref: "AWS::Region"}]
+      VpcId: !Ref CFVPC
       CidrBlock: 10.99.21.0/24 #transfer in parameters
       Tags:
         - Key: resource
@@ -209,11 +213,11 @@ NATGWEIP2:
   DBLayer2private:
     Type: AWS::EC2::Subnet
     Properties:
-      AvailabilityZone: !Select [1,"Fn:GetAZs":{Ref:"AWS::Region"}]
-      VpcId: !Ref CF-VPC
+      AvailabilityZone: !Select [1,"Fn::GetAZs":{Ref: "AWS::Region"}]
+      VpcId: !Ref CFVPC
       CidrBlock: 10.99.22.0/24 #transfer in parameters
       Tags:
         - Key: resource
           Value: CloudFormation #!
 
-Outputs:
+#########
