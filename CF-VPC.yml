@@ -1,19 +1,54 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: Deploy a VPC
 
+Parameters: #1. TODO change order of parameters listed https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-cloudformation-interface.html
+  VPCBlock:
+    Type: String
+    Default: 10.99.0.0/16
+
+  DMZ1publicSubnet:
+    Type: String
+    Default: 10.99.1.0/24
+    Description: "DMZ1public Subnet"
+
+  DMZ2publicSubnet:
+    Type: String
+    Default: 10.99.2.0/24
+    Description: "DMZ2public Subnet"
+
+  AppLayer1privateSubnet:
+    Type: String
+    Default: 10.99.11.0/24
+    Description: "AppLayer1private Subnet"
+
+  AppLayer2privateSubnet:
+    Type: String
+    Default: 10.99.12.0/24
+    Description: "AppLayer2private Subnet"
+
+  DBLayer1privateSubnet:
+    Type: String
+    Default: 10.99.21.0/24
+    Description: "DBLayer1private Subnet"
+
+  DBLayer2privateSubnet:
+    Type: String
+    Default: 10.99.22.0/24
+    Description: "DBLayer2private Subnet"
+
 Resources:
   #============= VPC ==================
   CFVPC:
     Type: AWS::EC2::VPC
     Properties:
-      CidrBlock: 10.99.0.0/16 #parameters implementation !Ref VpcBlock
-      EnableDnsSupport: true    #Test it
-      #EnableDnsHostnames: true      ???
+      CidrBlock: !Ref VPCBlock
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
       Tags:
         - Key: Name
           Value: CloudFormation
 
-#========IGW,PublicRT,RoutesForPublicRT,PrivateRT,RoutesForPrivateRT ==================
+  #========IGW,PublicRT,RoutesForPublicRT,PrivateRT,RoutesForPrivateRT ==================
   #========DMZ1publicRTAssociation,DMZ2publicRTAssociation,AppLayer1privateRTAssociation,AppLayer2privateRTAssociation=====
   #===== EIPForNATGWs, NATGWs,
 
@@ -54,21 +89,21 @@ Resources:
     Properties:
       VpcId: !Ref CFVPC
       Tags:
-        - Key: resource
-          Value: CloudFormation
-  
+        - Key: Name
+          Value: PrivateRT1
+
   PrivateRT2:
     Type: AWS::EC2::RouteTable
     Properties:
       VpcId: !Ref CFVPC
       Tags:
         - Key: Name
-          Value: CloudFormation
+          Value: PrivateRT2
 
-#======= Second PrivateRT for MultiAZ ========
-##################################
-##################################
-##################################
+  #======= Second PrivateRT for MultiAZ ========
+  ##################################
+  ##################################
+  ##################################
 
   #======== Routes For PrivateRT ==========
   RoutesForPrivateRTA:
@@ -78,7 +113,7 @@ Resources:
       RouteTableId: !Ref PrivateRT1
       DestinationCidrBlock: 0.0.0.0/0
       NatGatewayId: !Ref NATGateway1
-  
+
   RoutesForPrivateRTB:
     Type: AWS::EC2::Route
     DependsOn: NATGateway2 #!NATGatewayA
@@ -113,7 +148,7 @@ Resources:
       SubnetId: !Ref AppLayer2private
       RouteTableId: !Ref PrivateRT2
 
-  #==== Route Table and Route Association for Internal only - Databases    
+  #==== Route Table and Route Association for Internal only - Databases
   ############################################
   #TODO: DB association
   ############################################
@@ -140,7 +175,7 @@ Resources:
       AllocationId: !GetAtt NATGWEIP1.AllocationId
       Tags:
         - Key: Name
-          Value: NATGateway1
+          Value: aws
         - Key: resource
           Value: CloudFormation
 
@@ -155,13 +190,13 @@ Resources:
           Value: NATGateway2
         - Key: resource
           Value: CloudFormation
-#============= Subnets: DMZ1public,DMZ2public,AppLayer1private,AppLayer2private,DBLayer1private,DBLayer2private ==================
+  #============= Subnets: DMZ1public,DMZ2public,AppLayer1private,AppLayer2private,DBLayer1private,DBLayer2private ==================
   DMZ1public:
     Type: AWS::EC2::Subnet
     Properties:
-      AvailabilityZone: !Select [0,"Fn::GetAZs":{Ref:  "AWS::Region"}]
+      AvailabilityZone: !Select [0, "Fn::GetAZs": { Ref: "AWS::Region" }]
       VpcId: !Ref CFVPC
-      CidrBlock: 10.99.1.0/24  #TODO: transfer in parameters
+      CidrBlock: !Ref DMZ1publicSubnet
       MapPublicIpOnLaunch: true
       Tags:
         - Key: resource
@@ -170,9 +205,9 @@ Resources:
   DMZ2public:
     Type: AWS::EC2::Subnet
     Properties:
-      AvailabilityZone: !Select [1,"Fn::GetAZs":{Ref:  "AWS::Region"}]
+      AvailabilityZone: !Select [1, "Fn::GetAZs": { Ref: "AWS::Region" }]
       VpcId: !Ref CFVPC
-      CidrBlock: 10.99.2.0/24 #TODO: transfer in parameters
+      CidrBlock: !Ref DMZ2publicSubnet
       MapPublicIpOnLaunch: true
       Tags:
         - Key: resource
@@ -181,43 +216,41 @@ Resources:
   AppLayer1private:
     Type: AWS::EC2::Subnet
     Properties:
-      AvailabilityZone: !Select [0,"Fn::GetAZs":{Ref: "AWS::Region"}]
+      AvailabilityZone: !Select [0, "Fn::GetAZs": { Ref: "AWS::Region" }]
       VpcId: !Ref CFVPC
-      CidrBlock: 10.99.11.0/24 #TODO: transfer in parameters
+      CidrBlock: !Ref AppLayer1privateSubnet
       Tags:
-        - Key: resource
-          Value: CloudFormation #TODO:!
         - Key: Name
           Value: AppLayer1private
 
   AppLayer2private:
     Type: AWS::EC2::Subnet
     Properties:
-      AvailabilityZone: !Select [2,"Fn::GetAZs":{Ref: "AWS::Region"}]
+      AvailabilityZone: !Select [2, "Fn::GetAZs": { Ref: "AWS::Region" }]
       VpcId: !Ref CFVPC
-      CidrBlock: 10.99.12.0/24 #transfer in parameters
+      CidrBlock: !Ref AppLayer2privateSubnet
       Tags:
-        - Key: resource
-          Value: CloudFormation #!
+        - Key: Name
+          Value: CF-AppLayer2private #! Use Join with separator "-"
 
   DBLayer1private:
     Type: AWS::EC2::Subnet
     Properties:
-      AvailabilityZone: !Select [0,"Fn::GetAZs":{Ref: "AWS::Region"}]
+      AvailabilityZone: !Select [0, "Fn::GetAZs": { Ref: "AWS::Region" }]
       VpcId: !Ref CFVPC
-      CidrBlock: 10.99.21.0/24 #transfer in parameters
+      CidrBlock: !Ref DBLayer1privateSubnet
       Tags:
-        - Key: resource
-          Value: CloudFormation #!
-          
+        - Key: Name
+          Value: DBLayer1private #!
+
   DBLayer2private:
     Type: AWS::EC2::Subnet
     Properties:
-      AvailabilityZone: !Select [1,"Fn::GetAZs":{Ref: "AWS::Region"}]
+      AvailabilityZone: !Select [1, "Fn::GetAZs": { Ref: "AWS::Region" }]
       VpcId: !Ref CFVPC
-      CidrBlock: 10.99.22.0/24 #transfer in parameters
+      CidrBlock: !Ref DBLayer2privateSubnet
       Tags:
-        - Key: resource
-          Value: CloudFormation #!
+        - Key: Name
+          Value: DBLayer2private #!
 
 #########
