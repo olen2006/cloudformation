@@ -1,14 +1,41 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: ---
-Metadata: 
+Metadata:
 
-Parameters: 
+Parameters:
 
-Mappings: 
+Mappings:
 
-Conditions: 
+Conditions:
 
-Resources: 
-vp
+Resources:
+  S3Endpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      PolicyDocument:
+      Version: 2012-10-17
+        Statement:
+            - Effect: Allow
+              Principal: '*'
+              Action:
+                - 's3:GetObject'
+                - 's3:PutObject'
+                - 's3:DeleteObject'
+              Resource:
+                - 'arn:aws:s3:::new2310202/*'
+      RouteTableIds: 
+        - !Ref RouteTableId
+      ServiceName: !Join
+        - ''
+        - - com.amazonaws.
+          - !Ref 'AWS::Region'
+          - .s3
+      VpcId: !Ref VpcId
 
 Outputs:
+  StackName:
+    Description: 'Stack name'
+    Value: !Sub '${AWS::StackName}'
+  Endpoint:
+    Description: 'The VPC endpoint to S3.'
+    Value: !Ref S3Endpoint

@@ -199,8 +199,8 @@ Resources:
       CidrBlock: !Ref DMZ1publicSubnet
       MapPublicIpOnLaunch: true
       Tags:
-        - Key: resource
-          Value: CloudFormation #TODO:  NAME and !Join [ "", [ !Ref Environment, "-Public-A" ] ]
+        - Key: Name
+          Value: DMZ1public #TODO:  NAME and !Join [ "", [ !Ref Environment, "-Public-A" ] ]
 
   DMZ2public:
     Type: AWS::EC2::Subnet
@@ -210,8 +210,8 @@ Resources:
       CidrBlock: !Ref DMZ2publicSubnet
       MapPublicIpOnLaunch: true
       Tags:
-        - Key: resource
-          Value: CloudFormation #TODO:!
+        - Key: Name
+          Value: DMZ2public
 
   AppLayer1private:
     Type: AWS::EC2::Subnet
@@ -231,7 +231,7 @@ Resources:
       CidrBlock: !Ref AppLayer2privateSubnet
       Tags:
         - Key: Name
-          Value: CF-AppLayer2private #! Use Join with separator "-"
+          Value: AppLayer2private #! Use Join with separator "-" CF
 
   DBLayer1private:
     Type: AWS::EC2::Subnet
@@ -253,4 +253,6 @@ Resources:
         - Key: Name
           Value: DBLayer2private #!
 
+
+  
 #########
