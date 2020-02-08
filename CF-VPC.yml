@@ -1,10 +1,73 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: Deploy a VPC
+Metadata:
+  LICENSE: Apache License, Version 2.0
+  "AWS::CloudFormation::Interface":
+    ParameterGroups:
+      - Label:
+          default: Network configuration
+        Parameters:
+          - VPCBlock
+          - DMZ1publicSubnet
+          - DMZ2publicSubnet
+          - AppLayer1privateSubnet
+          - AppLayer2privateSubnet
+          - DBLayer1privateSubnet
+          - DBLayer2privateSubnet
+          - RemoteAccessCIDR
+      - Label:
+          default: Bastion EC2 configuration
+        Parameters:
+          - KeyName
+          - BastionAMIOS
+          - BastionInstanceType
+      - Label:
+          default: Linux bastion configuration
+        Parameters:
+          - NumBastionHosts
+          - BastionHostName
+        #- BastionTenancy #optional
+        #- EnableBanner   #optional
+        #- BastionBanner  #optional
+        #- EnableTCPForwarding #optional
+        #- EnableX11Forwarding #optional
+    ParameterLabels:
+      ##################################
+      BastionAMIOS:
+        default: Bastion AMI OS
+      BastionHostName:
+        default: Bastion Host Name
+      BastionInstanceType:
+        default: Bastion instance type
+      KeyName:
+        default: Key pair name
+      NumBastionHosts:
+        default: Number of bastion hosts
+      ##################################
+      DMZ1publicSubnet:
+        default: Public subnet 1 ID
+      DMZ2publicSubnet:
+        default: Public subnet 2 ID
+      AppLayer1privateSubnet:
+        default: Private subnet 1 ID
+      AppLayer2privateSubnet:
+        default: Private subnet 2 ID
+      DBLayer1privateSubnet:
+        default: Private subnet 1 ID for DB
+      DBLayer2privateSubnet:
+        default: Private subnet 2 ID for DB
+      ##################################
+      RemoteAccessCIDR:
+        default: Allowed bastion external access CIDR
+      ##################################
+      VPCID:
+        default: VPC ID
 
 Parameters: #1. TODO change order of parameters listed https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-cloudformation-interface.html
   VPCBlock:
     Type: String
     Default: 10.99.0.0/16
+    Description: None default VPC subnet
 
   DMZ1publicSubnet:
     Type: String
@@ -35,6 +98,56 @@ Parameters: #1. TODO change order of parameters listed https://docs.aws.amazon.c
     Type: String
     Default: 10.99.22.0/24
     Description: "DBLayer2private Subnet"
+
+  BastionAMIOS:
+    AllowedValues:
+      - Amazon-Linux2-HVM
+      #- Amazon-Linux-HVM #optional
+    Default: Amazon-Linux2-HVM
+    Description: The Linux distribution for the AMI to be used for the bastion instances.
+    Type: String
+  BastionHostName:
+    Default: "LinuxBastion"
+    Description: The value used for the name tag of the bastion host
+    Type: String
+  KeyName:
+    Description: Name of an existing EC2 KeyPair to enable SSH access to the instance
+    Type: AWS::EC2::KeyPair::KeyName
+
+  BastionInstanceType:
+    AllowedValues:
+      - t2.nano
+      - t2.micro
+    Default: t2.micro
+    Description: Amazon EC2 instance type for the bastion instances.
+    Type: String
+
+  NumBastionHosts:
+    AllowedValues:
+      - "1"
+      - "2"
+    Default: "1"
+    Description: The number of bastion hosts to create. Min 1, Max 2.
+    Type: String
+
+  RemoteAccessCIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
+    Description: Allowed CIDR block for external SSH access to the bastions.
+    Type: String
+
+Mappings:
+  RegionMap: #optional add support for all regions
+    us-east-1:
+      HVM64: ami-062f7200baf2fa504
+    us-east-2:
+      HVM64: ami-02ccb28830b645a41
+    us-west-1:
+      HVM64: ami-03caa3f860895f82e
+    us-west-2:
+      HVM64: ami-04590e7389a6e577c
+    ca-central-1:
+      HVM64: ami-0a269ca7cc3e3beff
 
 Resources:
   #============= VPC ==================
@@ -253,6 +366,57 @@ Resources:
         - Key: Name
           Value: DBLayer2private #!
 
+  ##################################################################################
+  BastionEC2:
+    Type: AWS::EC2::Instance
+    Properties:
+      KeyName: !Ref KeyName
+      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", HVM64]
+      InstanceType: t2.micro
 
-  
-#########
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: "true"
+          PrivateIpAddress: "10.99.1.5"
+          DeviceIndex: "0"
+          GroupSet:
+            - Ref: "BastionSG"
+          SubnetId:
+            Ref: "DMZ1public"
+
+
+
+
+      #          DeleteOnTermination: "true"
+
+
+      UserData: !Base64 |
+        #!/bin/bash -ex
+        # put your script here
+      Tags:
+        - Key: Name
+          Value: Bastion
+
+  BastionSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: BastionSG
+      GroupDescription: Enable SSH access via port 22
+      VpcId: !Ref CFVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: "22"
+          ToPort: "22"
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: BastionSG
+
+Outputs:
+  WebsiteURL:
+    Description: URL for newly created LAMP stack
+    Value: !Join
+      - ""
+      - - "http://"
+        - !GetAtt
+          - BastionEC2
+          - PublicDnsName
