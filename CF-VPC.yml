@@ -367,6 +367,60 @@ Resources:
           Value: DBLayer2private #!
 
   ##################################################################################
+  ALB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    DependsOn: AttachIGW
+    Properties:
+      LoadBalancerName: ALB
+      Scheme: internet-facing
+      SecurityGroups:
+        - !Ref ALBSG
+      Subnets:
+        - !Ref DMZ1public
+        - !Ref DMZ2public
+      #Instances:
+      #- instance-id
+      Listeners:
+        - LoadBalancerPort: "80"
+          InstancePort: !Ref WebServerPort
+          Protocol: HTTP
+          #InstanceProtocol: HTTP|HTTPS|TCP|SSL
+      HealthCheck:
+        Target: !Join
+          - ""
+          - - "HTTP:"
+            - !Ref WebServerPort
+            - /
+        HealthyThreshold: "3"
+        Interval: "30"
+        Timeout: "5"
+        UnhealthyThreshold: "5"
+  
+  WebALBListener:
+    Type: "AWS::ElasticLoadBalancingV2::Listener"
+    Properties:
+      DefaultActions: #required
+        - Type: forward
+          TargetGroupArn: !Ref ALBTG1WebApp
+      LoadBalancerArn: !Ref WebALB #required
+      Port: 80 #required
+      Protocol: HTTP #required
+
+  ALBSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: ALBSG
+      GroupDescription: Enable HTTP access via port 80
+      VpcId: !Ref CFVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: "80"
+          ToPort: "80"
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: ALBSG
+
   BastionEC2:
     Type: AWS::EC2::Instance
     Properties:
