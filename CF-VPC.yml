@@ -136,6 +136,11 @@ Parameters: #1. TODO change order of parameters listed https://docs.aws.amazon.c
     Description: Allowed CIDR block for external SSH access to the bastions.
     Type: String
 
+  WebServerPort:
+    Description: The TCP port for the Web Server
+    Type: Number
+    Default: "8888"
+
 Mappings:
   RegionMap: #optional add support for all regions
     us-east-1:
@@ -339,7 +344,7 @@ Resources:
   AppLayer2private:
     Type: AWS::EC2::Subnet
     Properties:
-      AvailabilityZone: !Select [2, "Fn::GetAZs": { Ref: "AWS::Region" }]
+      AvailabilityZone: !Select [1, "Fn::GetAZs": { Ref: "AWS::Region" }]
       VpcId: !Ref CFVPC
       CidrBlock: !Ref AppLayer2privateSubnet
       Tags:
@@ -367,35 +372,21 @@ Resources:
           Value: DBLayer2private #!
 
   ##################################################################################
-  ALB:
-    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
-    DependsOn: AttachIGW
+
+  ####################
+  WebALB:
+    Type: "AWS::ElasticLoadBalancingV2::LoadBalancer"
     Properties:
-      LoadBalancerName: ALB
-      Scheme: internet-facing
+      Name: WebALB
       SecurityGroups:
         - !Ref ALBSG
       Subnets:
-        - !Ref DMZ1public
-        - !Ref DMZ2public
-      #Instances:
-      #- instance-id
-      Listeners:
-        - LoadBalancerPort: "80"
-          InstancePort: !Ref WebServerPort
-          Protocol: HTTP
-          #InstanceProtocol: HTTP|HTTPS|TCP|SSL
-      HealthCheck:
-        Target: !Join
-          - ""
-          - - "HTTP:"
-            - !Ref WebServerPort
-            - /
-        HealthyThreshold: "3"
-        Interval: "30"
-        Timeout: "5"
-        UnhealthyThreshold: "5"
-  
+        - !Ref AppLayer1private
+        - !Ref AppLayer2private
+      Tags:
+        - Key: Name
+          Value: WebALB
+
   WebALBListener:
     Type: "AWS::ElasticLoadBalancingV2::Listener"
     Properties:
@@ -421,13 +412,32 @@ Resources:
         - Key: Name
           Value: ALBSG
 
+  ALBTG1WebApp:
+    Type: "AWS::ElasticLoadBalancingV2::TargetGroup"
+    Properties:
+      Name: TG1WebApp
+      HealthCheckEnabled: true #default for instance - enabled
+      HealthCheckIntervalSeconds: 5 #default 30
+      HealthCheckPath: /
+      HealthCheckPort: 80
+      HealthCheckProtocol: HTTP #default for ALB-HTTP, NLB-TCP
+      HealthCheckTimeoutSeconds: 2 #default HTTP, HTTPS-5sec
+      HealthyThresholdCount: 3
+      Port: 80
+      Protocol: HTTP
+      Tags:
+        - Key: Name
+          Value: ALBTG1WebApp
+      TargetType: instance #default
+      UnhealthyThresholdCount: 2 #default 2
+      VpcId: !Ref CFVPC
+
   BastionEC2:
     Type: AWS::EC2::Instance
     Properties:
       KeyName: !Ref KeyName
       ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", HVM64]
       InstanceType: t2.micro
-
       NetworkInterfaces:
         - AssociatePublicIpAddress: "true"
           PrivateIpAddress: "10.99.1.5"
@@ -436,13 +446,7 @@ Resources:
             - Ref: "BastionSG"
           SubnetId:
             Ref: "DMZ1public"
-
-
-
-
       #          DeleteOnTermination: "true"
-
-
       UserData: !Base64 |
         #!/bin/bash -ex
         # put your script here
@@ -465,6 +469,73 @@ Resources:
         - Key: Name
           Value: BastionSG
 
+  ###########################
+
+  ##########################
+  ASGWebServer:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      AutoScalingGroupName: ASGWebServer
+      #AvailabilityZones: !GetAZs ""
+      VPCZoneIdentifier:
+        - !Ref AppLayer1private
+        - !Ref AppLayer2private
+      LaunchConfigurationName: LaunchConfigWeb2 #USE LaunchTemplate instead ! https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-as-group.html
+      MaxSize: 4
+      MinSize: 2 #Desired ?
+      HealthCheckGracePeriod: 180
+      #LoadBalancerNames:
+      #  - !Ref WebALB
+      Tags:
+        - Key: Name
+          Value: ASGWebServer
+          PropagateAtLaunch: false
+      TargetGroupARNs:
+        - !Ref ALBTG1WebApp
+
+  LaunchConfigWeb2:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      LaunchConfigurationName: LaunchConfigWeb2
+      AssociatePublicIpAddress: false
+      #IamInstanceProfile:
+      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", HVM64]
+      #EbsOptimized: true|false
+      InstanceMonitoring: true
+      InstanceType: t2.micro
+      #KernelId:
+      KeyName: !Ref KeyName
+      SecurityGroups:
+        - !Ref WebServerSG
+      UserData: !Base64 |
+        #!/bin/bash -ex
+        yum -y update
+        yum -y install httpd php
+        echo "<html><body bgcolor=black><center><h1><p font color=red>Web Server - 1</p></h1></center></html>" > /var/www/html/index.html
+        sudo service httpd start
+        chkconfig httpd on
+
+  WebServerSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: WebServerSG
+      GroupDescription: Enable SSH access and HTTP from the load balancer only
+      VpcId: !Ref CFVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: "80"
+          ToPort: "80"
+          SourceSecurityGroupId: !Ref ALBSG
+        - IpProtocol: tcp
+          FromPort: "22"
+          ToPort: "22"
+          SourceSecurityGroupId: !Ref BastionSG
+      Tags:
+        - Key: Name
+          Value: WebServerSG
+
+##########################
+
 Outputs:
   WebsiteURL:
     Description: URL for newly created LAMP stack
@@ -474,3 +545,11 @@ Outputs:
         - !GetAtt
           - BastionEC2
           - PublicDnsName
+  URL:
+    Description: The URL of the website
+    Value: !Join
+      - ""
+      - - "http://"
+        - !GetAtt
+          - WebALB
+          - DNSName
