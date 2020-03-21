@@ -102,7 +102,6 @@ Parameters: #1. TODO change order of parameters listed https://docs.aws.amazon.c
   BastionAMIOS:
     AllowedValues:
       - Amazon-Linux2-HVM
-      #- Amazon-Linux-HVM #optional
     Default: Amazon-Linux2-HVM
     Description: The Linux distribution for the AMI to be used for the bastion instances.
     Type: String
@@ -144,15 +143,15 @@ Parameters: #1. TODO change order of parameters listed https://docs.aws.amazon.c
 Mappings:
   RegionMap: #optional add support for all regions
     us-east-1:
-      HVM64: ami-062f7200baf2fa504
+      AmazonLinux2: ami-0fc61db8544a617ed
     us-east-2:
-      HVM64: ami-02ccb28830b645a41
+      AmazonLinux2: ami-0e01ce4ee18447327
     us-west-1:
-      HVM64: ami-03caa3f860895f82e
+      AmazonLinux2: ami-09a7fe78668f1e2c0
     us-west-2:
-      HVM64: ami-04590e7389a6e577c
+      AmazonLinux2: ami-0ce21b51cb31a48b8
     ca-central-1:
-      HVM64: ami-0a269ca7cc3e3beff
+      AmazonLinux2: ami-0bf54ac1b628cf143
 
 Resources:
   #============= VPC ==================
@@ -175,7 +174,7 @@ Resources:
     Type: AWS::EC2::InternetGateway
     Properties:
       Tags:
-        - Key: resource
+        - Key: Name
           Value: CloudFormation
   AttachIGW:
     Type: AWS::EC2::VPCGatewayAttachment
@@ -277,12 +276,27 @@ Resources:
     DependsOn: AttachIGW
     Properties:
       Domain: !Ref CFVPC
+      Tags:
+        - Key: Name
+          Value: NATGWEIP1
 
   NATGWEIP2:
     Type: AWS::EC2::EIP
     DependsOn: AttachIGW
     Properties:
       Domain: !Ref CFVPC
+      Tags:
+        - Key: Name
+          Value: NATGWEIP2
+
+  BastionEIP:
+    Type: AWS::EC2::EIP
+    DependsOn: AttachIGW
+    Properties:
+      Domain: !Ref CFVPC
+      Tags:
+        - Key: Name
+          Value: Bastion
 
   #===== NATGWs =========
   NATGateway1:
@@ -371,9 +385,241 @@ Resources:
         - Key: Name
           Value: DBLayer2private #!
 
-  ##################################################################################
+  ######################################################################
 
-  ####################
+  DMZNACL:
+    Type: AWS::EC2::NetworkAcl
+    Properties:
+      Tags:
+        - Key: Name
+          Value: DMZNACL
+      VpcId: !Ref CFVPC #required
+
+  DMZ1publicSubnetNetworkAclAssociation:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      NetworkAclId: !Ref DMZNACL #required
+      SubnetId: !Ref DMZ1public #required
+
+  DMZ2publicSubnetNetworkAclAssociation:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      NetworkAclId: !Ref DMZNACL #required
+      SubnetId: !Ref DMZ2public #required
+
+  DMZNACLEntryIngress100:
+    Type: AWS::EC2::NetworkAclEntry
+    DependsOn: DMZNACL
+    Properties:
+      NetworkAclId: !Ref DMZNACL
+      RuleNumber: "100"
+      Protocol: "6"
+      PortRange:
+        From: "22"
+        To: "22"
+      RuleAction: allow
+      Egress: "false"
+      CidrBlock: 0.0.0.0/0
+  DMZNACLEntryIngress110:
+    Type: AWS::EC2::NetworkAclEntry
+    DependsOn: DMZNACL
+    Properties:
+      NetworkAclId: !Ref DMZNACL
+      RuleNumber: "110"
+      Protocol: "6"
+      PortRange:
+        From: "80"
+        To: "80"
+      RuleAction: allow
+      Egress: "false"
+      CidrBlock: 0.0.0.0/0
+  DMZNACLEntryIngress120:
+    Type: AWS::EC2::NetworkAclEntry
+    DependsOn: DMZNACL
+    Properties:
+      NetworkAclId: !Ref DMZNACL
+      RuleNumber: "120"
+      Protocol: "6"
+      PortRange:
+        From: "443"
+        To: "443"
+      RuleAction: allow
+      Egress: "false"
+      CidrBlock: 0.0.0.0/0
+  DMZNACLEntryIngress130:
+    Type: AWS::EC2::NetworkAclEntry
+    DependsOn: DMZNACL
+    Properties:
+      NetworkAclId: !Ref DMZNACL
+      RuleNumber: "130"
+      Protocol: "6"
+      PortRange:
+        From: "1024"
+        To: "65535"
+      RuleAction: allow
+      Egress: "false"
+      CidrBlock: 0.0.0.0/0
+  DMZNACLEntryEgress100:
+    Type: AWS::EC2::NetworkAclEntry
+    DependsOn: DMZNACL
+    Properties:
+      NetworkAclId: !Ref DMZNACL
+      RuleNumber: "100"
+      Protocol: "6"
+      PortRange:
+        From: "22"
+        To: "22"
+      RuleAction: allow
+      Egress: "true"
+      CidrBlock: 0.0.0.0/0
+  DMZNACLEntryEgress110:
+    Type: AWS::EC2::NetworkAclEntry
+    DependsOn: DMZNACL
+    Properties:
+      NetworkAclId: !Ref DMZNACL
+      RuleNumber: "110"
+      Protocol: "6"
+      PortRange:
+        From: "80"
+        To: "80"
+      RuleAction: allow
+      Egress: "true"
+      CidrBlock: 0.0.0.0/0
+  DMZNACLEntryEgress120:
+    Type: AWS::EC2::NetworkAclEntry
+    DependsOn: DMZNACL
+    Properties:
+      NetworkAclId: !Ref DMZNACL
+      RuleNumber: "120"
+      Protocol: "6"
+      PortRange:
+        From: "443"
+        To: "443"
+      RuleAction: allow
+      Egress: "true"
+      CidrBlock: 0.0.0.0/0
+  DMZNACLEntryEgress130:
+    Type: AWS::EC2::NetworkAclEntry
+    DependsOn: DMZNACL
+    Properties:
+      NetworkAclId: !Ref DMZNACL
+      RuleNumber: "130"
+      Protocol: "6"
+      PortRange:
+        From: "1024"
+        To: "65535"
+      RuleAction: allow
+      Egress: "true"
+      CidrBlock: 0.0.0.0/0
+  WebAppNACL:
+    Type: AWS::EC2::NetworkAcl
+    Properties:
+      VpcId: !Ref CFVPC
+      Tags:
+        - Key: Name
+          Value: WAppNACL
+  SubnetNetworkAclAssociationC:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      SubnetId: !Ref AppLayer1private
+      NetworkAclId: !Ref WebAppNACL
+  SubnetNetworkAclAssociationD:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      SubnetId: !Ref AppLayer2private
+      NetworkAclId: !Ref WebAppNACL
+  WebAppNACLEntryIngress100:
+    Type: AWS::EC2::NetworkAclEntry
+    DependsOn: WebAppNACL
+    Properties:
+      NetworkAclId: !Ref WebAppNACL
+      RuleNumber: "100"
+      Protocol: "6"
+      PortRange:
+        From: "22"
+        To: "22"
+      RuleAction: allow
+      Egress: "false"
+      CidrBlock: 10.99.0.0/16
+  WebAppNACLEntryIngress110:
+    Type: AWS::EC2::NetworkAclEntry
+    DependsOn: WebAppNACL
+    Properties:
+      NetworkAclId: !Ref WebAppNACL
+      RuleNumber: "110"
+      Protocol: "6"
+      PortRange:
+        From: "80"
+        To: "80"
+      RuleAction: allow
+      Egress: "false"
+      CidrBlock: 10.99.0.0/16
+  WebAppNACLEntryIngress120:
+    Type: AWS::EC2::NetworkAclEntry
+    DependsOn: WebAppNACL
+    Properties:
+      NetworkAclId: !Ref WebAppNACL
+      RuleNumber: "120"
+      Protocol: "6"
+      PortRange:
+        From: "443"
+        To: "443"
+      RuleAction: allow
+      Egress: "false"
+      CidrBlock: 10.99.0.0/16
+  WebAppNACLEntryIngress130:
+    Type: AWS::EC2::NetworkAclEntry
+    DependsOn: WebAppNACL
+    Properties:
+      NetworkAclId: !Ref WebAppNACL
+      RuleNumber: "130"
+      Protocol: "6"
+      PortRange:
+        From: "1024"
+        To: "65535"
+      RuleAction: allow
+      Egress: "false"
+      CidrBlock: 0.0.0.0/0
+  WebAppNACLEntryEgress110:
+    Type: AWS::EC2::NetworkAclEntry
+    DependsOn: WebAppNACL
+    Properties:
+      NetworkAclId: !Ref WebAppNACL
+      RuleNumber: "110"
+      Protocol: "6"
+      PortRange:
+        From: "80"
+        To: "80"
+      RuleAction: allow
+      Egress: "true"
+      CidrBlock: 0.0.0.0/0
+  WebAppNACLEntryEgress120:
+    Type: AWS::EC2::NetworkAclEntry
+    DependsOn: WebAppNACL
+    Properties:
+      NetworkAclId: !Ref WebAppNACL
+      RuleNumber: "120"
+      Protocol: "6"
+      PortRange:
+        From: "443"
+        To: "443"
+      RuleAction: allow
+      Egress: "true"
+      CidrBlock: 0.0.0.0/0
+  WebAppNACLEntryEgress130:
+    Type: AWS::EC2::NetworkAclEntry
+    DependsOn: WebAppNACL
+    Properties:
+      NetworkAclId: !Ref WebAppNACL
+      RuleNumber: "130"
+      Protocol: "6"
+      PortRange:
+        From: "1024"
+        To: "65535"
+      RuleAction: allow
+      Egress: "true"
+      CidrBlock: 10.99.0.0/16
+
   WebALB:
     Type: "AWS::ElasticLoadBalancingV2::LoadBalancer"
     Properties:
@@ -381,8 +627,8 @@ Resources:
       SecurityGroups:
         - !Ref ALBSG
       Subnets:
-        - !Ref AppLayer1private
-        - !Ref AppLayer2private
+        - !Ref DMZ1public
+        - !Ref DMZ2public
       Tags:
         - Key: Name
           Value: WebALB
@@ -396,6 +642,19 @@ Resources:
       LoadBalancerArn: !Ref WebALB #required
       Port: 80 #required
       Protocol: HTTP #required
+
+  #Listener rule
+  ALBListenerRule:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      Actions:
+        - Type: forward # traffic to the specific target group
+          TargetGroupArn: !Ref ALBTG1WebApp
+      Conditions:
+        - Field: path-pattern
+          Values: [/]
+      ListenerArn: !Ref WebALBListener
+      Priority: 1
 
   ALBSG:
     Type: AWS::EC2::SecurityGroup
@@ -432,28 +691,6 @@ Resources:
       UnhealthyThresholdCount: 2 #default 2
       VpcId: !Ref CFVPC
 
-  BastionEC2:
-    Type: AWS::EC2::Instance
-    Properties:
-      KeyName: !Ref KeyName
-      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", HVM64]
-      InstanceType: t2.micro
-      NetworkInterfaces:
-        - AssociatePublicIpAddress: "true"
-          PrivateIpAddress: "10.99.1.5"
-          DeviceIndex: "0"
-          GroupSet:
-            - Ref: "BastionSG"
-          SubnetId:
-            Ref: "DMZ1public"
-      #          DeleteOnTermination: "true"
-      UserData: !Base64 |
-        #!/bin/bash -ex
-        # put your script here
-      Tags:
-        - Key: Name
-          Value: Bastion
-
   BastionSG:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -464,23 +701,23 @@ Resources:
         - IpProtocol: tcp
           FromPort: "22"
           ToPort: "22"
-          CidrIp: 0.0.0.0/0
+          CidrIp: 0.0.0.0/0 # is it correct ?
       Tags:
         - Key: Name
           Value: BastionSG
 
-  ###########################
-
-  ##########################
+  ########################## AutoScaling Group ########################
   ASGWebServer:
     Type: AWS::AutoScaling::AutoScalingGroup
+    DependsOn:
+      - LCWeb
     Properties:
       AutoScalingGroupName: ASGWebServer
       #AvailabilityZones: !GetAZs ""
       VPCZoneIdentifier:
         - !Ref AppLayer1private
         - !Ref AppLayer2private
-      LaunchConfigurationName: LaunchConfigWeb2 #USE LaunchTemplate instead ! https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-as-group.html
+      LaunchConfigurationName: !Ref LCWeb #USE LaunchTemplate instead ! https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-as-group.html
       MaxSize: 4
       MinSize: 2 #Desired ?
       HealthCheckGracePeriod: 180
@@ -493,27 +730,102 @@ Resources:
       TargetGroupARNs:
         - !Ref ALBTG1WebApp
 
-  LaunchConfigWeb2:
+  ScalingUpPolicyASGWebServer:
+    Type: "AWS::AutoScaling::ScalingPolicy"
+    Properties:
+      AdjustmentType: ChangeInCapacity
+      AutoScalingGroupName: !Ref ASGWebServer #required
+      Cooldown: 1
+      ScalingAdjustment: 1
+
+  ScalingDownPolicyASGWebServer:
+    Type: "AWS::AutoScaling::ScalingPolicy"
+    Properties:
+      AdjustmentType: ChangeInCapacity
+      AutoScalingGroupName: !Ref ASGWebServer #required
+      Cooldown: 60
+      ScalingAdjustment: -1
+
+  CPUAlarmHigh:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      EvaluationPeriods: 1
+      Statistic: Average
+      Threshold: 90
+      AlarmDescription: Scale-up if CPU > 90% for 1 minute
+      Period: 60
+      AlarmActions:
+        - Ref: ScalingUpPolicyASGWebServer
+      Namespace: AWS/EC2
+      Dimensions:
+        - Name: AutoScalingGroupName
+          Value:
+            Ref: ASGWebServer
+      ComparisonOperator: GreaterThanThreshold
+      MetricName: CPUUtilization
+
+  CPUAlarmLow:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      EvaluationPeriods: 2
+      Statistic: Average
+      Threshold: 40
+      AlarmDescription: Scale-down if CPU < 40% for 2 minute
+      Period: 60
+      AlarmActions:
+        - Ref: ScalingDownPolicyASGWebServer
+      Namespace: AWS/EC2
+      Dimensions:
+        - Name: AutoScalingGroupName
+          Value:
+            Ref: ASGWebServer
+      ComparisonOperator: LessThanThreshold
+      MetricName: CPUUtilization
+
+  # LaunchConfigWeb2:
+  #   Type: AWS::AutoScaling::LaunchConfiguration
+  #   Properties:
+  #     LaunchConfigurationName: LaunchConfigWeb2
+  #     AssociatePublicIpAddress: false
+  #     #IamInstanceProfile:
+  #     ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", HVM64]
+  #     #EbsOptimized: true|false
+  #     InstanceMonitoring: true
+  #     InstanceType: t2.micro
+  #     #KernelId:
+  #     KeyName: !Ref KeyName
+  #     SecurityGroups:
+  #       - !Ref WebServerSG
+  #     UserData: !Base64 |
+  #       #!/bin/bash
+  #       yum -y update
+  #       yum -y install httpd php
+  #       echo "<html><body bgcolor=green><center><h1><p font color=red>Web Server - 1</p></h1></center></html>" > /var/www/html/index.html
+  #       sudo service httpd start
+  #       chkconfig httpd on
+
+  LCWeb:
     Type: AWS::AutoScaling::LaunchConfiguration
     Properties:
-      LaunchConfigurationName: LaunchConfigWeb2
       AssociatePublicIpAddress: false
-      #IamInstanceProfile:
-      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", HVM64]
-      #EbsOptimized: true|false
+      #IamInstanceProfile: String
+      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AmazonLinux2] #required
       InstanceMonitoring: true
-      InstanceType: t2.micro
-      #KernelId:
+      InstanceType: t2.micro #required
+
       KeyName: !Ref KeyName
       SecurityGroups:
         - !Ref WebServerSG
-      UserData: !Base64 |
-        #!/bin/bash -ex
-        yum -y update
-        yum -y install httpd php
-        echo "<html><body bgcolor=black><center><h1><p font color=red>Web Server - 1</p></h1></center></html>" > /var/www/html/index.html
-        sudo service httpd start
-        chkconfig httpd on
+
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash -xe
+          yum -y update
+          yum -y install httpd php
+          h=`ec2-metadata -h | awk '{print $2}'`
+          echo "<html><body bgcolor=green><center><h1><p font color=red>Web Server - 1</p></h1><p><?php echo $h ?></p></center></html>" > /var/www/html/index.html
+          sudo service httpd start
+          chkconfig httpd on
 
   WebServerSG:
     Type: AWS::EC2::SecurityGroup
@@ -534,17 +846,125 @@ Resources:
         - Key: Name
           Value: WebServerSG
 
+  ASGBastion:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    DependsOn: #?
+      - LCBastion
+    Properties:
+      AutoScalingGroupName: ASGBastion
+      #AvailabilityZones: !GetAZs ""
+      VPCZoneIdentifier:
+        - !Ref DMZ1public
+        - !Ref DMZ2public
+      LaunchConfigurationName: !Ref LCBastion #USE LaunchTemplate instead ! https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-as-group.html
+      MaxSize: 1
+      MinSize: 1 #Desired ?
+      HealthCheckGracePeriod: 180
+      #LoadBalancerNames:
+      #  - !Ref WebALB
+      Tags:
+        - Key: Name
+          Value: ASGBastion
+          PropagateAtLaunch: true
+      #TargetGroupARNs:
+      #  - !Ref TG1Bastion
+
+  LCBastion:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      #LaunchConfigurationName: LCBastion
+      AssociatePublicIpAddress: true
+      IamInstanceProfile: !Ref BastionIamInstanceProfile
+      #IamInstanceProfile:
+      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", AmazonLinux2]
+      #EbsOptimized: true|false
+      InstanceMonitoring: true
+      InstanceType: !Ref BastionInstanceType
+      #KernelId:
+      KeyName: !Ref KeyName
+      SecurityGroups:
+        - !Ref BastionSG
+      UserData: !Base64 |
+        #!/bin/bash -ex
+        yum install -y jq awscli
+        region=`ec2-metadata --availability-zone | awk '{print $2}' | sed 's/.$//'`
+        echo "[default]" > /root/.aws/config
+        echo "region = ${region}" >> /root/.aws/config
+        ALLOCATION_ID=`aws ec2 describe-addresses --region $REGION_ID --filters="Name=tag:Name,Values=Bastion" | jq -r '.Addresses[] | "\(.InstanceId) \(.AllocationId)"' | grep null | awk '{print $2}' | xargs shuf -n1 -e`
+        INSTANCE_ID=`ec2-metadata -i | cut -d " " -f2`
+        if [ ! -z $ALLOCATION_ID ]; then
+          aws ec2 associate-address --region $REGION_ID --instance-id $INSTANCE_ID --allocation-id $ALLOCATION_ID --allow-reassociation
+        fi
+
+  BastionIamInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: "/"
+      Roles:
+        - !Ref BastionIamRole
+
+  # full access to other ec2 instances
+  BastionIamPolicies:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: fullAccess
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: "ec2:*"
+            Resource: "*"
+          - Effect: Allow
+            Action:
+              - ec2:DescribeAddresses
+              - ec2:AllocateAddress #Maybe not needed.
+              - ec2:DescribeInstances #maybe not needed.
+              - ec2:AssociateAddress
+            Resource: "*"
+      Roles:
+        - !Ref BastionIamRole
+
+  BastionIamRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: "/"
+
+  # BastionEC2:
+  #   Type: AWS::EC2::Instance
+  #   Properties:
+  #     KeyName: !Ref KeyName
+  #     ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", HVM64]
+  #     InstanceType: t2.micro
+  #     NetworkInterfaces:
+  #       - AssociatePublicIpAddress: "true"
+  #         PrivateIpAddress: "10.99.1.5" #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  #         DeviceIndex: "0"
+  #         GroupSet:
+  #           - Ref: "BastionSG"
+  #         SubnetId:
+  #           Ref: "DMZ1public"
+  #     #          DeleteOnTermination: "true"
+  #     UserData: !Base64 |
+  #       #!/bin/bash -ex
+  #       # put your script here
+  #     Tags:
+  #       - Key: Name
+  #         Value: Bastion
 ##########################
 
 Outputs:
-  WebsiteURL:
-    Description: URL for newly created LAMP stack
-    Value: !Join
-      - ""
-      - - "http://"
-        - !GetAtt
-          - BastionEC2
-          - PublicDnsName
+  BastionPublicIP:
+    Description: Public IP of the Bastion Host
+    Value: !Ref BastionEIP
   URL:
     Description: The URL of the website
     Value: !Join

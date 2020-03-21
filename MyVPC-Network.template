@@ -150,6 +150,7 @@
         ]
       }
     },
+    
     "ApplicationLoadBalancer": {
       "Type" : "AWS::ElasticLoadBalancingV2::LoadBalancer",
       "Properties" : {
