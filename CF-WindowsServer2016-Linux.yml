@@ -1,0 +1,1260 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: |
+  HA CloudFormation Template for  the Application running on Windows Server 2016.
+Parameters:
+  VPCBlock:
+    Type: String
+    Default: 10.99.0.0/16
+    Description: None default VPC subnet
+
+  DMZ1publicSubnet:
+    Type: String
+    Default: 10.99.1.0/24
+    Description: "DMZ1public Subnet"
+
+  DMZ2publicSubnet:
+    Type: String
+    Default: 10.99.2.0/24
+    Description: "DMZ2public Subnet"
+
+  AppLayer1privateSubnet:
+    Type: String
+    Default: 10.99.11.0/24
+    Description: "AppLayer1private Subnet"
+
+  AppLayer2privateSubnet:
+    Type: String
+    Default: 10.99.12.0/24
+    Description: "AppLayer2private Subnet"
+
+  DBLayer1privateSubnet:
+    Type: String
+    Default: 10.99.21.0/24
+    Description: "DBLayer1private Subnet"
+
+  DBLayer2privateSubnet:
+    Type: String
+    Default: 10.99.22.0/24
+    Description: "DBLayer2private Subnet"
+
+  BastionAMIOS:
+    AllowedValues:
+      - WinServer2016Base
+    Default: WinServer2016Base
+    Description: hoose AMI OS for the Bastion Host.
+    Type: String
+
+  WebApplicationAMIOS:
+    AllowedValues:
+      - WinServer2016Base
+    Default: WinServer2016Base
+    Description: Choose AMI OS for the Web Application.
+    Type: String
+
+  SQLServerAMIOS:
+    AllowedValues:
+      - AMZN2SQL
+      - AMZN2
+    Default: AMZN2
+    Description: Choose AMI OS for the Database Instance
+
+    Type: String
+  BastionHostName:
+    Default: "WindowsBastion"
+    Description: The value used for the name tag of the Bastion host
+    Type: String
+  WebApplicationHostName:
+    Default: "WindowsWebApplication"
+    Description: The value used for the name tag of the Web Application host
+    Type: String
+  SQLServerHostName:
+    Default: "SQLServer2017Ex"
+    Description: The value used for the name tag of the SQL Server host
+    Type: String
+
+  ServerKeyName:
+    Description: Name of an existing EC2 KeyPair to enable RDP access to the instance
+    Type: AWS::EC2::KeyPair::KeyName
+
+  BastionInstanceType:
+    AllowedValues:
+      - t3.micro
+      - t3.medium
+    Default: t3.micro
+    Description: Windows Based EC2 instance type for the bastion instances.
+    Type: String
+
+  WebApplicationInstanceType:
+    AllowedValues:
+      - t2.medium
+      - t2.large
+      - t3.medium
+      - t3.large
+    Default: t2.medium
+    Description: Windows Server EC2 Instance type to run Web Application.
+    Type: String
+
+  NumBastionHosts:
+    AllowedValues:
+      - "1"
+      - "2"
+    Default: "1"
+    Description: The number of bastion hosts to create. Min 1, Max 2.
+    Type: String
+
+  NumWebApplicationHosts:
+    AllowedValues:
+      - "0"
+      - "1"
+      - "2"
+      - "3"
+      - "4"
+    Default: "1"
+    Description: The number of Web Application hosts to create. Min 1, Max 4.
+    Type: String
+
+  RemoteAccessCIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
+    Default: 0.0.0.0/0
+    Description: Allowed CIDR block for external RDP access to the bastions.
+    Type: String
+
+  DBInstanceType:
+    Description: Recommended database instance r4.xlarge (4vCPU 30.5GiB) for Amazon Linux SQL AMI
+    Type: String
+    Default: t3.large #Only for Amazon Linux 2 (No SQL)
+    AllowedValues:
+      - t3.large #2 vCPU 8  GiB Up to 5 Gbps √ | Not Supported                                         | $0.2660 per hr Linux ($60.91 Month) ($730.92 1 Year) On Demand
+      - t3.xlarge #4 vCPU 16 GiB Up to 5 Gbps  | $0.646 per hr  Linux with SQL Standard ($473.17 Month)| $0.1664 per hr Linux ($121.81 Month)
+      - m5.large #2 vCPU 8  GiB Up to 10 Gbps  | $0.576 per hr  Linux with SQL Standard                | $0.0960 per hr Linux
+      - m5.xlarge #4 vCPU 16 GiB Up to 10 Gbps | $0.672 per hr  Linux with SQL Standard                | $0.1920 per hr Linux
+      - m5.2xlarge #8 vCPU 32 GiB Up to 10 Gbps| 	$1.344 per hr Linux with SQL Standard                | $0.3840 per hr Linux
+      - r4.xlarge #4 vCPU 30.5 GiB Up to 10 Gbps ✪ | $0.746 per hr Linux with SQL Standard ($546.08 Month)| $0.2660 per hr Linux ($194.72 Month)
+    ConstraintDescription: Must select a valid database instance type.
+
+Metadata:
+  LICENSE: General License, Version 2.0
+  "AWS::CloudFormation::Interface":
+    ParameterGroups:
+      - Label:
+          default: Network configuration
+        Parameters:
+          - VPCBlock
+          - DMZ1publicSubnet
+          - DMZ2publicSubnet
+          - AppLayer1privateSubnet
+          - AppLayer2privateSubnet
+          - DBLayer1privateSubnet
+          - DBLayer2privateSubnet
+          - RemoteAccessCIDR
+          - KeyName
+      - Label:
+          default: Windows Bastion EC2 configuration
+        Parameters:
+          - BastionInstanceType
+          - BastionAMIOS
+          - NumBastionHosts
+          - BastionHostName
+      - Label:
+          default: Windows Application EC2 configuration
+        Parameters:
+          - WebApplicationInstanceType
+          - WebApplicationAMIOS
+          - NumWebApplicationHosts
+          - WebApplicationHostName
+      - Label:
+          default: Database EC2 Instance Configuration
+        Parameters:
+          - DBInstanceType
+          - SQLServerAMIOS
+          - WSQLServerHostName
+
+    ParameterLabels:
+      ##################################
+      BastionAMIOS:
+        default: Bastion AMI OS
+      WebApplicationAMIOS:
+        default: Web Application AMI OS
+      BastionHostName:
+        default: Bastion Host Name
+      WebApplicationHostName:
+        default: Web Application Host Name
+      BastionInstanceType:
+        default: Bastion instance type
+      WebApplicationInstanceType:
+        default: Web Application instance type
+      KeyName:
+        default: Key pair name
+      NumBastionHosts:
+        default: Number of bastion hosts
+      NumWebApplicationHosts:
+        default: Number of Web Application hosts
+
+      DBInstanceType:
+        default: Bastion instance type
+      SQLServerAMIOS:
+        default: SQL Server AMI OS
+
+      ##################################
+      DMZ1publicSubnet:
+        default: Public subnet AZ-1
+      DMZ2publicSubnet:
+        default: Public subnet AZ-2
+      AppLayer1privateSubnet:
+        default: Private subnet 1 AZ-1
+      AppLayer2privateSubnet:
+        default: Private subnet 2 AZ-2
+      DBLayer1privateSubnet:
+        default: Private subnet 1 AZ-1 for DB
+      DBLayer2privateSubnet:
+        default: Private subnet 2 AZ-2 for DB
+      ############Remote SSH####################
+      RemoteAccessCIDR:
+        default: Allowed bastion external access CIDR
+      ##################################
+      VPCID:
+        default: VPC ID
+
+Mappings:
+  RegionMap:
+    us-east-1:
+      WinServer2016Base: ami-08bf5f54919fada4a
+      AMZN2SQL: ami-087a6127ba9676bb6 #Amazon Linux 2 LTS with SQL Server 2017 Standard
+      AMZN2: ami-0323c3dd2da7fb37d #Amazon Linux 2
+    us-east-2:
+      WinServer2016Base: ami-0148f346905f051c8
+      AMZN2SQL: ami-0e50388a58e27fdc8
+      AMZN2: ami-0f7919c33c90f5b58
+    us-west-1:
+      WinServer2016Base: ami-0b96117be9b70f713
+      AMZN2SQL: ami-001f4423779a12677
+      AMZN2: ami-06fcc1f0bc2c8943f
+    us-west-2:
+      WinServer2016Base: ami-0a069e9a033cfaf89
+      AMZN2SQL: ami-0559759155a54c7a8
+      AMZN2: ami-0d6621c01e8c2de2c
+    ca-central-1:
+      WinServer2016Base: ami-0924aaca0769fc621
+      AMZN2SQL: ami-08130845a91cae08d
+      AMZN2: ami-054362537f5132ce2
+
+Resources:
+  VPC:
+    Type: "AWS::EC2::VPC"
+    Properties:
+      CidrBlock: !Ref VPCBlock
+      EnableDnsHostnames: "true"
+      EnableDnsSupport: "true"
+      Tags:
+        - Key: Name
+          Value: CF-VPC
+  InternetGateway:
+    Type: "AWS::EC2::InternetGateway"
+    Properties:
+      Tags:
+        - Key: Name
+          Value: CF-IGW
+
+  VPCGatewayAttachment:
+    Type: "AWS::EC2::VPCGatewayAttachment"
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+
+  DMZ1public:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      AvailabilityZone: !Select
+        - "0"
+        - !GetAZs ""
+      CidrBlock: !Ref DMZ1publicSubnet
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: DMZ1public
+  DMZ2public:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      AvailabilityZone: !Select
+        - "1"
+        - !GetAZs ""
+      CidrBlock: !Ref DMZ2publicSubnet
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: DMZ2public
+  AppLayer1private:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      AvailabilityZone: !Select
+        - "0"
+        - !GetAZs ""
+      CidrBlock: !Ref AppLayer1privateSubnet
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: AppLayer1private
+  AppLayer2private:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      AvailabilityZone: !Select
+        - "1"
+        - !GetAZs ""
+      CidrBlock: !Ref AppLayer2privateSubnet
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: AppLayer2private
+
+  DBLayer1private:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      AvailabilityZone: !Select
+        - "0"
+        - !GetAZs ""
+      CidrBlock: !Ref DBLayer1privateSubnet
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: DBLayer1privateSubnet
+
+  DBLayer2private:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      AvailabilityZone: !Select
+        - "1"
+        - !GetAZs ""
+      CidrBlock: !Ref DBLayer2privateSubnet
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: DBLayer2privateSubnet
+
+  PublicRT:
+    Type: "AWS::EC2::RouteTable"
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: PublicRT
+  RouteTableAssociationA:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      SubnetId: !Ref DMZ1public
+      RouteTableId: !Ref PublicRT
+  RouteTableAssociationB:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      SubnetId: !Ref DMZ2public
+      RouteTableId: !Ref PublicRT
+  RoutePublicNATToInternet:
+    Type: "AWS::EC2::Route"
+    Properties:
+      RouteTableId: !Ref PublicRT
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+    DependsOn: VPCGatewayAttachment
+  NATElasticIP:
+    Type: "AWS::EC2::EIP"
+    Properties:
+      Domain: vpc
+    DependsOn: VPCGatewayAttachment
+
+  BastionElasticIP:
+    Type: "AWS::EC2::EIP"
+    Properties:
+      Domain: vpc
+      Tags:
+        - Key: Name
+          Value: Bastion
+    DependsOn: VPCGatewayAttachment
+
+  NATGateway:
+    Type: "AWS::EC2::NatGateway"
+    DependsOn: NATElasticIP
+    Properties:
+      AllocationId: !GetAtt
+        - NATElasticIP
+        - AllocationId
+      SubnetId: !Ref DMZ2public
+  NATGatewayRoute:
+    Type: "AWS::EC2::Route"
+    Properties:
+      RouteTableId: !Ref PrivateRT
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NATGateway
+  PrivateRT:
+    Type: "AWS::EC2::RouteTable"
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: PrivateRT
+  RouteTableAssociationC:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      SubnetId: !Ref AppLayer1private
+      RouteTableId: !Ref PrivateRT
+  RouteTableAssociationD:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      SubnetId: !Ref AppLayer2private
+      RouteTableId: !Ref PrivateRT
+  ####################Routing for DB layer####################
+  RouteTableAssociationE:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      SubnetId: !Ref DBLayer1private
+      RouteTableId: !Ref PrivateRT
+  RouteTableAssociationG:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      SubnetId: !Ref DBLayer2private
+      RouteTableId: !Ref PrivateRT
+  ####################End Routing for DB layer####################
+
+  #######ADD DbLayer1Private to Private Route association ####################
+
+  DMZNACL:
+    Type: "AWS::EC2::NetworkAcl"
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: DMZNACL
+  SubnetNetworkAclAssociationA:
+    Type: "AWS::EC2::SubnetNetworkAclAssociation"
+    Properties:
+      SubnetId: !Ref DMZ1public
+      NetworkAclId: !Ref DMZNACL
+  SubnetNetworkAclAssociationB:
+    Type: "AWS::EC2::SubnetNetworkAclAssociation"
+    Properties:
+      SubnetId: !Ref DMZ2public
+      NetworkAclId: !Ref DMZNACL
+
+  DMZNACLEntryIngress100:
+    Type: "AWS::EC2::NetworkAclEntry"
+    DependsOn: DMZNACL
+    Properties:
+      NetworkAclId: !Ref DMZNACL
+      RuleNumber: "100"
+      Protocol: "6"
+      PortRange:
+        From: "3389"
+        To: "3389"
+      RuleAction: allow
+      Egress: "false"
+      CidrBlock: 0.0.0.0/0 #Should be fixed to !Ref RemoteAccessCIDR
+
+  DMZNACLEntryIngress110:
+    Type: "AWS::EC2::NetworkAclEntry"
+    DependsOn: DMZNACL
+    Properties:
+      NetworkAclId: !Ref DMZNACL
+      RuleNumber: "110"
+      Protocol: "6"
+      PortRange:
+        From: "80"
+        To: "80"
+      RuleAction: allow
+      Egress: "false"
+      CidrBlock: 0.0.0.0/0 #!Ref VPCBlock
+
+  DMZNACLEntryIngress120:
+    Type: "AWS::EC2::NetworkAclEntry"
+    DependsOn: DMZNACL
+    Properties:
+      NetworkAclId: !Ref DMZNACL
+      RuleNumber: "120"
+      Protocol: "6"
+      PortRange:
+        From: "443"
+        To: "443"
+      RuleAction: allow
+      Egress: "false"
+      CidrBlock: 0.0.0.0/0 #!Ref VPCBlock
+
+  DMZNACLEntryIngress130:
+    Type: "AWS::EC2::NetworkAclEntry"
+    DependsOn: DMZNACL
+    Properties:
+      NetworkAclId: !Ref DMZNACL
+      RuleNumber: "130"
+      Protocol: "6"
+      PortRange:
+        From: "1024"
+        To: "65535"
+      RuleAction: allow
+      Egress: "false"
+      CidrBlock: 0.0.0.0/0 #?
+
+  DMZNACLEntryEgress100:
+    Type: "AWS::EC2::NetworkAclEntry"
+    DependsOn: DMZNACL
+    Properties:
+      NetworkAclId: !Ref DMZNACL
+      RuleNumber: "100"
+      Protocol: "6"
+      PortRange:
+        From: "80"
+        To: "80"
+      RuleAction: allow
+      Egress: "true"
+      CidrBlock: 0.0.0.0/0 #?
+
+  DMZNACLEntryEgress120:
+    Type: "AWS::EC2::NetworkAclEntry"
+    DependsOn: DMZNACL
+    Properties:
+      NetworkAclId: !Ref DMZNACL
+      RuleNumber: "120"
+      Protocol: "6"
+      PortRange:
+        From: "443"
+        To: "443"
+      RuleAction: allow
+      Egress: "true"
+      CidrBlock: 0.0.0.0/0 #?
+
+  DMZNACLEntryEgress130:
+    Type: "AWS::EC2::NetworkAclEntry"
+    DependsOn: DMZNACL
+    Properties:
+      NetworkAclId: !Ref DMZNACL
+      RuleNumber: "130"
+      Protocol: "6"
+      PortRange:
+        From: "1024"
+        To: "65535"
+      RuleAction: allow
+      Egress: "true"
+      CidrBlock: 0.0.0.0/0 #!Ref VPCBlock
+
+  AppNACL:
+    Type: "AWS::EC2::NetworkAcl"
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: AppNACL
+  SubnetNetworkAclAssociationC:
+    Type: "AWS::EC2::SubnetNetworkAclAssociation"
+    Properties:
+      SubnetId: !Ref AppLayer1private
+      NetworkAclId: !Ref AppNACL
+  SubnetNetworkAclAssociationD:
+    Type: "AWS::EC2::SubnetNetworkAclAssociation"
+    Properties:
+      SubnetId: !Ref AppLayer2private
+      NetworkAclId: !Ref AppNACL
+  AppNACLEntryIngress100:
+    Type: "AWS::EC2::NetworkAclEntry"
+    DependsOn: AppNACL
+    Properties:
+      NetworkAclId: !Ref AppNACL
+      RuleNumber: "100"
+      Protocol: "6"
+      PortRange:
+        From: "3389"
+        To: "3389"
+      RuleAction: allow
+      Egress: "false"
+      CidrBlock: !Ref VPCBlock
+
+  AppNACLEntryIngress110:
+    Type: "AWS::EC2::NetworkAclEntry"
+    DependsOn: AppNACL
+    Properties:
+      NetworkAclId: !Ref AppNACL
+      RuleNumber: "110"
+      Protocol: "6"
+      PortRange:
+        From: "80"
+        To: "80"
+      RuleAction: allow
+      Egress: "false"
+      CidrBlock: !Ref VPCBlock #
+
+  AppNACLEntryIngress120:
+    Type: "AWS::EC2::NetworkAclEntry"
+    DependsOn: AppNACL
+    Properties:
+      NetworkAclId: !Ref AppNACL
+      RuleNumber: "120"
+      Protocol: "6"
+      PortRange:
+        From: "443"
+        To: "443"
+      RuleAction: allow
+      Egress: "false"
+      CidrBlock: !Ref VPCBlock #
+
+  AppNACLEntryIngress130:
+    Type: "AWS::EC2::NetworkAclEntry"
+    DependsOn: AppNACL
+    Properties:
+      NetworkAclId: !Ref AppNACL
+      RuleNumber: "130"
+      Protocol: "6"
+      PortRange:
+        From: "1024"
+        To: "65535"
+      RuleAction: allow
+      Egress: "false"
+      CidrBlock: 0.0.0.0/0
+
+  AppNACLEntryEgress100:
+    Type: "AWS::EC2::NetworkAclEntry"
+    DependsOn: AppNACL
+    Properties:
+      NetworkAclId: !Ref AppNACL
+      RuleNumber: "100"
+      Protocol: "6"
+      PortRange:
+        From: "80"
+        To: "80"
+      RuleAction: allow
+      Egress: "true"
+      CidrBlock: 0.0.0.0/0
+
+  AppNACLEntryEgress120:
+    Type: "AWS::EC2::NetworkAclEntry"
+    DependsOn: AppNACL
+    Properties:
+      NetworkAclId: !Ref AppNACL
+      RuleNumber: "120"
+      Protocol: "6"
+      PortRange:
+        From: "443"
+        To: "443"
+      RuleAction: allow
+      Egress: "true"
+      CidrBlock: 0.0.0.0/0
+
+  AppNACLEntryEgress130:
+    Type: "AWS::EC2::NetworkAclEntry"
+    DependsOn: AppNACL
+    Properties:
+      NetworkAclId: !Ref AppNACL
+      RuleNumber: "130"
+      Protocol: "6"
+      PortRange:
+        From: "22"
+        To: "22"
+      RuleAction: allow
+      Egress: "true"
+      CidrBlock: 0.0.0.0/0
+
+  AppNACLEntryEgress140:
+    Type: "AWS::EC2::NetworkAclEntry"
+    DependsOn: AppNACL
+    Properties:
+      NetworkAclId: !Ref AppNACL
+      RuleNumber: "140"
+      Protocol: "6"
+      PortRange:
+        From: "1024"
+        To: "65535"
+      RuleAction: allow
+      Egress: "true"
+      CidrBlock: 0.0.0.0/0 #!Ref VPCBlock
+
+  DBNACL:
+    Type: AWS::EC2::NetworkAcl
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: DBNACL
+  SubnetNetworkAclAssociationE:
+    Type: "AWS::EC2::SubnetNetworkAclAssociation"
+    Properties:
+      SubnetId: !Ref DBLayer1private
+      NetworkAclId: !Ref DBNACL
+  SubnetNetworkAclAssociationG:
+    Type: "AWS::EC2::SubnetNetworkAclAssociation"
+    Properties:
+      SubnetId: !Ref DBLayer2private
+      NetworkAclId: !Ref DBNACL
+
+  DBNACLEntryIngress100:
+    Type: "AWS::EC2::NetworkAclEntry"
+    DependsOn: DBNACL
+    Properties:
+      NetworkAclId: !Ref DBNACL
+      RuleNumber: "100"
+      Protocol: "6"
+      PortRange:
+        From: "1433"
+        To: "1433"
+      RuleAction: allow
+      Egress: "false"
+      CidrBlock: !Ref VPCBlock
+
+  DBNACLEntryIngress110:
+    Type: "AWS::EC2::NetworkAclEntry"
+    DependsOn: DBNACL
+    Properties:
+      NetworkAclId: !Ref DBNACL
+      RuleNumber: "110"
+      Protocol: "6"
+      PortRange:
+        From: "22"
+        To: "22"
+      RuleAction: allow
+      Egress: "false"
+      CidrBlock: !Ref VPCBlock
+
+  DBNACLEntryIngress120:
+    Type: "AWS::EC2::NetworkAclEntry"
+    DependsOn: DBNACL
+    Properties:
+      NetworkAclId: !Ref DBNACL
+      RuleNumber: "120"
+      Protocol: "6"
+      PortRange:
+        From: "1024"
+        To: "65535"
+      RuleAction: allow
+      Egress: "false"
+      CidrBlock: 0.0.0.0/0
+
+  DBNACLEntryEgress100:
+    Type: "AWS::EC2::NetworkAclEntry"
+    DependsOn: DBNACL
+    Properties:
+      NetworkAclId: !Ref DBNACL
+      RuleNumber: "100"
+      Protocol: "6"
+      PortRange:
+        From: "80"
+        To: "80"
+      RuleAction: allow
+      Egress: "true"
+      CidrBlock: 0.0.0.0/0
+
+  DBNACLEntryEgress110:
+    Type: "AWS::EC2::NetworkAclEntry"
+    DependsOn: DBNACL
+    Properties:
+      NetworkAclId: !Ref DBNACL
+      RuleNumber: "110"
+      Protocol: "6"
+      PortRange:
+        From: "443" #RH
+        To: "443"
+      RuleAction: allow
+      Egress: "true"
+      CidrBlock: 0.0.0.0/0
+
+  DBNACLEntryEgress120:
+    Type: "AWS::EC2::NetworkAclEntry"
+    DependsOn: DBNACL
+    Properties:
+      NetworkAclId: !Ref DBNACL
+      RuleNumber: "120"
+      Protocol: "6"
+      PortRange:
+        From: "1024"
+        To: "65535"
+      RuleAction: allow
+      Egress: "true"
+      CidrBlock: !Ref VPCBlock
+
+  LoadBalancer:
+    Type: "AWS::ElasticLoadBalancingV2::LoadBalancer"
+    Properties:
+      Subnets:
+        - !Ref DMZ1public
+        - !Ref DMZ2public
+      Name: load-balancer
+      Type: application
+      Scheme: internet-facing
+      SecurityGroups:
+        - !Ref LoadBalancerSecurityGroup
+      IpAddressType: ipv4
+      Tags:
+        - Key: Name
+          Value: ALB
+  Listener:
+    Type: "AWS::ElasticLoadBalancingV2::Listener"
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref TargetGroupWebApplication
+      LoadBalancerArn: !Ref LoadBalancer
+      Port: "80"
+      Protocol: HTTP
+
+MyCertificate:
+  Type: "AWS::CertificateManager::Certificate"
+  Properties:
+    DomainName: devopsgarage.com                      #required
+    DomainValidationOptions:
+      - DomainValidationOption
+    SubjectAlternativeNames:
+      - String
+    Tags:
+      - Tag
+    ValidationMethod: String
+
+  TargetGroupWebApplication:
+    Type: "AWS::ElasticLoadBalancingV2::TargetGroup"
+    Properties:
+      HealthCheckIntervalSeconds: "10"
+      HealthCheckPath: "/html/Donation.html"
+      HealthCheckPort: "80"
+      HealthCheckProtocol: HTTP
+      HealthyThresholdCount: "5"
+      Name: TG1WebApplication
+      Port: "80"
+      Protocol: HTTP
+      UnhealthyThresholdCount: "5"
+      TargetGroupAttributes:
+        - Key: stickiness.enabled
+          Value: true
+      VpcId: !Ref VPC
+
+  BastionSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: Windows Bastion Host
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: BastionSG
+      SecurityGroupIngress:
+        - CidrIp: 0.0.0.0/0
+          FromPort: 3389
+          IpProtocol: tcp
+          ToPort: 3389
+  LoadBalancerSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: Application-elb
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: LoadBalancerSG
+      SecurityGroupIngress:
+        - CidrIp: 0.0.0.0/0
+          FromPort: 80
+          IpProtocol: tcp
+          ToPort: 80
+        - CidrIp: 0.0.0.0/0
+          FromPort: 443
+          IpProtocol: tcp
+          ToPort: 443
+        - FromPort: 1024
+          IpProtocol: tcp
+          CidrIp: 0.0.0.0/0
+          ToPort: 65535
+
+  WebApplicationSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: Application-ec2
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: WebServerSG
+      SecurityGroupIngress:
+        - FromPort: 3389
+          IpProtocol: tcp
+          SourceSecurityGroupId: !Ref BastionSecurityGroup
+          ToPort: 3389
+        - FromPort: 80
+          IpProtocol: tcp
+          SourceSecurityGroupId: !Ref LoadBalancerSecurityGroup
+          ToPort: 80
+        - FromPort: 443
+          IpProtocol: tcp
+          SourceSecurityGroupId: !Ref LoadBalancerSecurityGroup
+          ToPort: 443
+
+  DatabaseSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: DatabaseSG
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: DatabaseSG
+      SecurityGroupIngress:
+        - FromPort: 1433
+          IpProtocol: tcp
+          SourceSecurityGroupId: !Ref WebApplicationSecurityGroup
+          ToPort: 1433
+        - FromPort: 22
+          IpProtocol: tcp
+          SourceSecurityGroupId: !Ref WebApplicationSecurityGroup
+          ToPort: 22
+
+  ############################################
+  BastionIamInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: "/"
+      Roles:
+        - !Ref BastionIamRole
+
+  # full access to other ec2 instances
+  BastionIamPolicies:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: fullAccess
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: "ec2:*"
+            Resource: "*"
+          - Effect: Allow
+            Action:
+              - ec2:DescribeAddresses
+              - ec2:AllocateAddress #Maybe not needed.
+              - ec2:DescribeInstances #maybe not needed.
+              - ec2:AssociateAddress
+            Resource: "*"
+      Roles:
+        - !Ref BastionIamRole
+
+  BastionIamRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: "/"
+
+  WebAppProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: "/"
+      Roles:
+        - !Ref WebAppRole
+
+  WebAppPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: Ec2ReadFromS3Bucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: "ec2:*"
+            Resource: "*"
+          - Effect: Allow
+            Action:
+              - s3:GetObject
+              - s3:ListBucket
+            Resource: "arn:aws:s3:::immediaterent2310202"
+      Roles:
+        - !Ref WebAppRole
+
+  WebAppRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+      Path: "/"
+
+  LaunchConfigurationBastion:
+    Type: "AWS::AutoScaling::LaunchConfiguration"
+    DependsOn: VPCGatewayAttachment
+    Properties:
+      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", WinServer2016Base]
+      InstanceType: !Ref BastionInstanceType
+      SecurityGroups:
+        - !Ref BastionSecurityGroup
+      KeyName: { "Ref": "ServerKeyName" }
+      AssociatePublicIpAddress: "true"
+      IamInstanceProfile: !Ref BastionIamInstanceProfile
+      UserData: !Base64
+        "Fn::Join":
+          - ""
+          - - |
+              <powershell>
+              $eipalloc=(Get-EC2Address -Filter  @{Name="tag-value";Values="Bastion"}).AllocationId
+              Write-Host '$eipalloc:' $eipalloc
+              $iid=Get-EC2InstanceMetadata -Category InstanceId
+              Write-Host '$iid:' $iid
+              if($eipalloc){
+                  Register-EC2Address -InstanceId $iid -AllocationId $eipalloc
+              }
+            #- "cfn-init.exe -v -s "
+            #- !Ref "AWS::StackId"
+            #- " -r DomainController "
+            #- " --region "
+            #- !Ref "AWS::Region"
+            #- |+
+
+            - </powershell>
+            #<persist>true</persist>
+      InstanceMonitoring: "true"
+
+  AutoScalingGroupBastion:
+    Type: "AWS::AutoScaling::AutoScalingGroup"
+    Properties:
+      # TargetGroupARNs:
+      #   - !Ref TargetGroupBastion
+      LaunchConfigurationName: !Ref LaunchConfigurationBastion
+      MinSize: !Ref NumBastionHosts
+      MaxSize: "2"
+      #DesiredCapacity: "1"
+      Cooldown: "300"
+      HealthCheckGracePeriod: "300"
+      HealthCheckType: EC2
+      VPCZoneIdentifier:
+        - !Ref DMZ1public
+        - !Ref DMZ2public
+      Tags:
+        - PropagateAtLaunch: "true"
+          Value: !Ref BastionHostName
+          Key: Name
+
+  LaunchConfigurationWebApplication:
+    Type: "AWS::AutoScaling::LaunchConfiguration"
+    DependsOn: VPCGatewayAttachment
+    Properties:
+      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", WinServer2016Base]
+      InstanceType: !Ref WebApplicationInstanceType
+      SecurityGroups:
+        - !Ref WebApplicationSecurityGroup
+      KeyName: { "Ref": "ServerKeyName" }
+      AssociatePublicIpAddress: "false"
+      IamInstanceProfile: !Ref WebAppProfile
+      UserData: !Base64
+        "Fn::Join":
+          - ""
+          - - |
+              <powershell>
+              Install-WindowsFeature -name Web-Server -IncludeManagementTools
+              Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+              choco install putty.install -y
+              choco install dotnetcore-windowshosting --version=2.1.16 -y
+              Copy-S3Object -BucketName immediaterent2310202 -Key ImRent.zip -File c:\inetpub\wwwroot\ImRent.zip
+              cd C:\inetpub\wwwroot\
+              iisreset /stop
+              Expand-Archive -LiteralPath ImRent.zip -DestinationPath .
+              $acl = Get-Acl "C:\inetpub\wwwroot\ImRent"
+              $rule = New-Object  System.Security.Accesscontrol.FileSystemAccessRule("IIS_IUSRS","Write","ContainerInherit,ObjectInherit", "None","Allow")
+              $acl.SetAccessRule($rule)
+              $acl | Set-Acl "C:\inetpub\wwwroot\ImRent" 
+              Import-Module -Name 'WebAdministration'
+              Set-ItemProperty 'IIS:\Sites\Default Web Site\' -name physicalPath -Value 'C:\inetpub\wwwroot\ImRent\'
+              iisreset /start
+            - </powershell>
+      InstanceMonitoring: "true"
+
+  LaunchConfigurationSQLServer:
+    Type: "AWS::AutoScaling::LaunchConfiguration"
+    DependsOn: VPCGatewayAttachment
+    Properties:
+      ImageId: !FindInMap [RegionMap, !Ref "AWS::Region", !Ref SQLServerAMIOS]
+
+      InstanceType: !Ref DBInstanceType
+      SecurityGroups:
+        - !Ref DatabaseSecurityGroup
+      KeyName: { "Ref": "ServerKeyName" }
+      AssociatePublicIpAddress: "false"
+      UserData: !Base64 |
+        #!/bin/bash -e
+        # Use the following variables to control your install:
+        # Password for the SA user (required)
+        MSSQL_SA_PASSWORD='<YourStrong!Passw0rd>'
+        # Product ID of the version of SQL server you're installing# Must be evaluation, developer, express, web, standard, enterprise, or your 25 digit product key# Defaults to developer
+        MSSQL_PID='express'
+        # Install SQL Server Agent (recommended)
+        SQL_ENABLE_AGENT='y'
+        # Install SQL Server Full Text Search (optional)# SQL_INSTALL_FULLTEXT='y'
+        # Create an additional user with sysadmin privileges (optional)
+        # SQL_INSTALL_USER='<Username>'
+        # SQL_INSTALL_USER_PASSWORD='<YourStrong!Passw0rd>'
+        if [ -z $MSSQL_SA_PASSWORD ]
+        then
+          echo Environment variable MSSQL_SA_PASSWORD must be set for unattended install
+          exit 1
+        fi
+
+        echo Adding Microsoft repositories...
+        sudo curl -o /etc/yum.repos.d/mssql-server.repo https://packages.microsoft.com/config/rhel/7/mssql-server-2017.repo
+        sudo curl -o /etc/yum.repos.d/msprod.repo https://packages.microsoft.com/config/rhel/7/prod.repo
+
+        echo Installing SQL Server...
+        sudo yum install -y mssql-server
+
+        echo Running mssql-conf setup...
+        sudo MSSQL_SA_PASSWORD=$MSSQL_SA_PASSWORD \
+            MSSQL_PID=$MSSQL_PID \
+            /opt/mssql/bin/mssql-conf -n setup accept-eula
+
+        echo Installing mssql-tools and unixODBC developer...
+        sudo ACCEPT_EULA=Y yum install -y mssql-tools unixODBC-devel
+        echo Installaion of mssql-tools and unixODBC is finished
+
+        # Add SQL Server tools to the path by default:
+        echo Adding SQL Server tools to your path...
+        echo PATH="$PATH:/opt/mssql-tools/bin" >> ~/.bash_profile
+        echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bashrc
+
+        echo PATH="$PATH:/opt/mssql-tools/bin" >> /home/ec2-user/.bash_profile
+        echo PATH="$PATH:/opt/mssql-tools/bin" >> /home/ec2-user/.bashrc
+        source ~/.bashrc 
+        # Optional Enable SQL Server Agent :
+        if [ ! -z $SQL_ENABLE_AGENT ]
+        then
+          echo Enable SQL Server Agent...
+          sudo /opt/mssql/bin/mssql-conf set sqlagent.enabled true
+          sudo systemctl restart mssql-server
+        fi
+
+        # Example of setting post-installation configuration options# Set trace flags 1204 and 1222 for deadlock tracing:
+        #echo Setting trace flags...
+        #sudo /opt/mssql/bin/mssql-conf traceflag 1204 1222 on
+
+        # Restart SQL Server after making configuration changes:echo Restarting SQL Server...
+        sudo systemctl restart mssql-server
+
+        # Connect to server and get the version:
+        counter=1
+        errstatus=1
+        while [ $counter -le 5 ] && [ $errstatus = 1 ]
+        do
+          echo Waiting for SQL Server to start...
+          sleep 5s
+          /opt/mssql-tools/bin/sqlcmd \
+            -S localhost \
+            -U SA \
+            -P $MSSQL_SA_PASSWORD \
+            -Q "SELECT @@VERSION" 2>/dev/null
+          errstatus=$?
+          ((counter++))
+        done
+
+        # Display error if connection failed:
+        if [ $errstatus = 1 ]
+        then
+          echo Cannot connect to SQL Server, installation aborted
+          exit $errstatusfi
+
+        echo Done!
+      InstanceMonitoring: "true"
+
+  AutoScalingGroupDB:
+    Type: "AWS::AutoScaling::AutoScalingGroup"
+    Properties:
+      # TargetGroupARNs:
+      #   - !Ref TargetGroupBastion
+      LaunchConfigurationName: !Ref LaunchConfigurationSQLServer
+      MinSize: "1"
+      MaxSize: "1"
+      DesiredCapacity: "1"
+      Cooldown: "300"
+      HealthCheckGracePeriod: "300"
+      HealthCheckType: EC2
+      VPCZoneIdentifier:
+        - !Ref DBLayer1private
+        - !Ref DBLayer2private
+      Tags:
+        - PropagateAtLaunch: "true"
+          Value: !Ref SQLServerHostName
+          Key: Name
+
+  AutoScalingGroupWebApplication:
+    Type: "AWS::AutoScaling::AutoScalingGroup"
+    Properties:
+      TargetGroupARNs:
+        - !Ref TargetGroupWebApplication
+      LaunchConfigurationName: !Ref LaunchConfigurationWebApplication
+      MinSize: !Ref NumWebApplicationHosts
+      MaxSize: "4"
+      #DesiredCapacity: "2"
+      Cooldown: "300"
+      HealthCheckGracePeriod: "900"
+      HealthCheckType: ELB
+      VPCZoneIdentifier:
+        - !Ref AppLayer1private
+        - !Ref AppLayer2private
+      Tags:
+        - PropagateAtLaunch: "true"
+          Value: !Ref WebApplicationHostName # Change
+          Key: Name # Change
+
+  ScalingUpPolicyASGWebServer:
+    Type: "AWS::AutoScaling::ScalingPolicy"
+    Properties:
+      AdjustmentType: ChangeInCapacity
+      AutoScalingGroupName: !Ref AutoScalingGroupWebApplication #required
+      Cooldown: 1
+      ScalingAdjustment: 1
+  ScalingDownPolicyASGWebServer:
+    Type: "AWS::AutoScaling::ScalingPolicy"
+    Properties:
+      AdjustmentType: ChangeInCapacity
+      AutoScalingGroupName: !Ref AutoScalingGroupWebApplication #required
+      Cooldown: 60
+      ScalingAdjustment: -1
+  CPUAlarmHigh:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      EvaluationPeriods: 1
+      Statistic: Average
+      Threshold: 90
+      AlarmDescription: Scale-up if CPU > 90% for 1 minute
+      Period: 60
+      AlarmActions:
+        - Ref: ScalingUpPolicyASGWebServer
+      Namespace: AWS/EC2
+      Dimensions:
+        - Name: AutoScalingGroupName
+          Value:
+            Ref: AutoScalingGroupWebApplication
+      ComparisonOperator: GreaterThanThreshold
+      MetricName: CPUUtilization
+  CPUAlarmLow:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      EvaluationPeriods: 5
+      Statistic: Average
+      Threshold: 10
+      AlarmDescription: Scale-down if CPU < 1% for 5 minute
+      Period: 60
+      AlarmActions:
+        - Ref: ScalingDownPolicyASGWebServer
+      Namespace: AWS/EC2
+      Dimensions:
+        - Name: AutoScalingGroupName
+          Value:
+            Ref: AutoScalingGroupWebApplication
+      ComparisonOperator: LessThanThreshold
+      MetricName: CPUUtilization
+
+Outputs:
+  URL:
+    Description: The URL of the website
+    Value: !Join
+      - ""
+      - - "http://"
+        - !GetAtt
+          - LoadBalancer
+          - DNSName
+  #DB:
+  #Description: Database Endpoint
+  #Value: !GetAtt AppDB.Endpoint.Address
